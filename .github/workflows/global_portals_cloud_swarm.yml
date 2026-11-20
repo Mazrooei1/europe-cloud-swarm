@@ -1,0 +1,119 @@
+name: Global Multi-Region Cloud Swarm (13 Portals -> Google Drive)
+
+on:
+  schedule:
+    # Staggered every 12h (03:00 & 15:00 UTC) to avoid overlapping the 20-runner European swarm
+    - cron: '0 3,15 * * *'
+  workflow_dispatch:
+    inputs:
+      max_tasks:
+        description: 'Optional task cap per runner (0 = unlimited full sweep)'
+        required: false
+        default: '0'
+
+jobs:
+  global_extract_matrix:
+    name: Extract ${{ matrix.portal }} (${{ matrix.region_group }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 13
+      matrix:
+        include:
+          # Remaining 3 European Portals (feeds Europe Master DB)
+          - { portal: willhaben_at, region_group: europe_extra, drive_dest: Europe_Property_Database_Exports/cloud_shards }
+          - { portal: myhome_ie, region_group: europe_extra, drive_dest: Europe_Property_Database_Exports/cloud_shards }
+          - { portal: daft_ie, region_group: europe_extra, drive_dest: Europe_Property_Database_Exports/cloud_shards }
+          # UAE & GCC / MENA Portals (8 Runners)
+          - { portal: bayut_ae, region_group: mena_uae, drive_dest: Global_Cloud_Swarm_Exports/mena_uae/shards }
+          - { portal: propertyfinder_ae, region_group: mena_uae, drive_dest: Global_Cloud_Swarm_Exports/mena_uae/shards }
+          - { portal: propertyfinder_bh, region_group: mena_uae, drive_dest: Global_Cloud_Swarm_Exports/mena_uae/shards }
+          - { portal: propertyfinder_eg, region_group: mena_uae, drive_dest: Global_Cloud_Swarm_Exports/mena_uae/shards }
+          - { portal: propertyfinder_qa, region_group: mena_uae, drive_dest: Global_Cloud_Swarm_Exports/mena_uae/shards }
+          - { portal: propertyfinder_om, region_group: mena_uae, drive_dest: Global_Cloud_Swarm_Exports/mena_uae/shards }
+          - { portal: propertyfinder_kw, region_group: mena_uae, drive_dest: Global_Cloud_Swarm_Exports/mena_uae/shards }
+          - { portal: bayut_sa, region_group: mena_uae, drive_dest: Global_Cloud_Swarm_Exports/mena_uae/shards }
+          # UK & USA Portals (2 Runners)
+          - { portal: rightmove_uk, region_group: uk_usa, drive_dest: Global_Cloud_Swarm_Exports/uk_usa/shards }
+          - { portal: redfin_us, region_group: uk_usa, drive_dest: Global_Cloud_Swarm_Exports/uk_usa/shards }
+
+    steps:
+      - name: Checkout Cloud Swarm Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Extraction Dependencies & rclone
+        run: |
+          pip install -r requirements.txt
+          sudo apt-get update -qq && sudo apt-get install -y -qq rclone
+
+      - name: Configure rclone Google Drive Remote
+        env:
+          RCLONE_CONFIG_CONTENT: ${{ secrets.RCLONE_CONFIG }}
+        run: |
+          mkdir -p ~/.config/rclone
+          printf '%s\n' "$RCLONE_CONFIG_CONTENT" > ~/.config/rclone/rclone.conf
+
+      - name: Run 25-Worker Global Cloud Extractor
+        run: |
+          MAX_T="${{ github.event.inputs.max_tasks || '0' }}"
+          python3 global_cloud_worker.py \
+            --portal "${{ matrix.portal }}" \
+            --workers 25 \
+            --max-tasks "$MAX_T" \
+            --output "/tmp/shard_${{ matrix.portal }}.sqlite"
+
+      - name: Upload Shard to Google Drive with Bitwise MD5 Checksum
+        run: |
+          rclone copy --checksum -v \
+            "/tmp/shard_${{ matrix.portal }}.sqlite" \
+            "gdrive:${{ matrix.drive_dest }}/"
+
+  merge_global_regions:
+    name: Merge Global Regional Master Databases + Bitwise MD5 Check
+    needs: global_extract_matrix
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout Cloud Swarm Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install rclone
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq rclone
+
+      - name: Configure rclone Google Drive Remote
+        env:
+          RCLONE_CONFIG_CONTENT: ${{ secrets.RCLONE_CONFIG }}
+        run: |
+          mkdir -p ~/.config/rclone
+          printf '%s\n' "$RCLONE_CONFIG_CONTENT" > ~/.config/rclone/rclone.conf
+
+      - name: Merge MENA/UAE & UK/USA Regional Master Databases
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          for GROUP in mena_uae uk_usa; do
+            mkdir -p /tmp/work/$GROUP/shards
+            rclone copy --checksum -v "gdrive:Global_Cloud_Swarm_Exports/$GROUP/latest/${GROUP}_master.sqlite" /tmp/work/$GROUP/ || true
+            rclone copy --checksum -v "gdrive:Global_Cloud_Swarm_Exports/$GROUP/shards/" /tmp/work/$GROUP/shards/ || true
+            python3 cloud_merger.py \
+              --master-db /tmp/work/$GROUP/${GROUP}_master.sqlite \
+              --shards-dir /tmp/work/$GROUP/shards \
+              --summary-out /tmp/work/$GROUP/extraction_audit_summary.json
+            rclone copy --checksum -v /tmp/work/$GROUP/${GROUP}_master.sqlite "gdrive:Global_Cloud_Swarm_Exports/$GROUP/latest/"
+            rclone copy --checksum -v /tmp/work/$GROUP/extraction_audit_summary.json "gdrive:Global_Cloud_Swarm_Exports/$GROUP/latest/"
+            rclone copy --checksum -v /tmp/work/$GROUP/${GROUP}_master.sqlite "gdrive:Global_Cloud_Swarm_Exports/$GROUP/$TODAY/"
+            rclone check /tmp/work/$GROUP/${GROUP}_master.sqlite "gdrive:Global_Cloud_Swarm_Exports/$GROUP/latest/"
+            rclone delete "gdrive:Global_Cloud_Swarm_Exports/$GROUP/shards/"
+          done
