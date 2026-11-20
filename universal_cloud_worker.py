@@ -598,8 +598,22 @@ def main() -> None:
                         shard_count += inserted
                         batch_buf.clear()
                         elapsed = max(1.0, time.time() - start_ts)
-                        logger.info("[%s] Committed WAL batch | shard=%d rows | rate=%.1f items/sec",
-                                    domain, shard_count, (checkpoint["total_extracted"] + shard_count) / elapsed)
+                        live_total = checkpoint.get("total_extracted", 0) + shard_count
+                        logger.info("[%s] Committed WAL batch | shard=%d | live_total=%d | rate=%.1f items/sec",
+                                    domain, shard_count, live_total, live_total / elapsed)
+                        if args.rclone_dest:
+                            hb_file = work_dir / "portal_totals.json"
+                            hb_file.write_text(json.dumps({
+                                "portal_domain": domain,
+                                "country_code": checkpoint["country_code"],
+                                "total_listings": live_total,
+                                "shards_uploaded": checkpoint.get("shards_uploaded", 0),
+                                "sitemaps_done": len(completed_sm),
+                                "sitemaps_total": checkpoint.get("total_sitemaps", 0),
+                                "status": "IN_PROGRESS",
+                                "updated_at_utc": datetime.now(timezone.utc).isoformat(),
+                            }, indent=2), encoding="utf-8")
+                            rclone_cmd(["copyto", str(hb_file), f"{args.rclone_dest}/portal_totals.json"], check=False)
 
                     if shard_count >= args.shard_size:
                         if batch_buf:
@@ -611,8 +625,11 @@ def main() -> None:
                         conn = init_shard_db(db_path)
                         shard_count = 0
 
-                if waf_consecutive_403 >= 150:
-                    logger.warning("[%s] Hit 150 consecutive 403/429 responses -> WAF_BLOCKED_DETAIL. Stopping cleanly.", domain)
+                if 50 <= waf_consecutive_403 < 300:
+                    logger.warning("[%s] Rate-limit burst (%d consecutive 403/429). Cooling down 15s...", domain, waf_consecutive_403)
+                    time.sleep(15)
+                elif waf_consecutive_403 >= 300:
+                    logger.warning("[%s] Hit 300 consecutive 403/429 responses -> WAF_BLOCKED_DETAIL. Stopping cleanly.", domain)
                     checkpoint["status"] = "WAF_BLOCKED_DETAIL"
                     sm_aborted = True
                     break
