@@ -67,17 +67,17 @@ def fetch_with_backoff(url: str, headers: Dict[str, str], max_retries: int = 3) 
 # ----------------- Partition Matrices ----------------- #
 
 SPAIN_CITIES = [
-    "madrid", "barcelona", "valencia", "sevilla", "zaragoza", "malaga", "murcia",
-    "palma-de-mallorca", "las-palmas-de-gran-canaria", "bilbao", "alicante-alacant",
-    "cordoba", "valladolid", "vigo", "gijon", "hospitalet-de-llobregat", "vitoria-gasteiz",
-    "la-coruna", "elche-elx", "granada", "terrassa", "badalona", "oviedo", "sabadell",
-    "cartagena", "jerez-de-la-frontera", "mostoles", "santa-cruz-de-tenerife",
-    "alcala-de-henares", "fuenlabrada", "pamplona-iruna", "almeria", "leganes",
-    "san-sebastian-donostia", "santander", "castellon-de-la-plana", "burgos", "albacete",
-    "alcorcon", "getafe", "salamanca", "logrono", "huelva", "badajoz", "tarragona", "leon",
-    "lleida", "marbella", "torrevieja", "estepona", "fuengirola", "mijas", "benidorm",
-    "torremolinos", "benalmadena", "orihuela", "denia", "javea-xabia", "calpe-calp",
-    "altea", "santa-pola", "roquetas-de-mar", "velez-malaga", "nerja",
+    "madrid-capital", "barcelona-capital", "valencia-capital", "sevilla-capital", "zaragoza-capital",
+    "malaga-capital", "murcia-capital", "palma-de-mallorca", "las-palmas-de-gran-canaria", "bilbao",
+    "alicante-alacant-capital", "cordoba-capital", "valladolid-capital", "vigo", "gijon",
+    "hospitalet-de-llobregat", "vitoria-gasteiz", "la-coruna-capital", "elche-elx", "granada-capital",
+    "terrassa", "badalona", "oviedo", "sabadell", "cartagena", "jerez-de-la-frontera", "mostoles",
+    "santa-cruz-de-tenerife-capital", "alcala-de-henares", "fuenlabrada", "pamplona-iruna", "almeria-capital",
+    "leganes", "san-sebastian-donostia", "santander", "castellon-de-la-plana-capital", "burgos-capital",
+    "albacete-capital", "alcorcon", "getafe", "salamanca-capital", "logrono", "huelva-capital",
+    "badajoz-capital", "tarragona-capital", "leon-capital", "lleida-capital", "marbella", "torrevieja",
+    "estepona", "fuengirola", "mijas", "benidorm", "torremolinos", "benalmadena", "orihuela", "denia",
+    "javea-xabia", "calpe-calp", "altea", "santa-pola", "roquetas-de-mar", "velez-malaga", "nerja",
     "chiclana-de-la-frontera", "el-puerto-de-santa-maria", "sanlucar-de-barrameda",
     "salou", "cambrils", "lloret-de-mar", "blanes", "sitges", "castelldefels", "gava",
     "sant-cugat-del-valles", "mataro", "vilanova-i-la-geltru", "manresa", "rubi",
@@ -85,7 +85,7 @@ SPAIN_CITIES = [
     "pozuelo-de-alarcon", "majadahonda", "rivas-vaciamadrid", "valdemoro", "torrejon-de-ardoz",
     "boadilla-del-monte", "colmenar-viejo", "tres-cantos", "san-sebastian-de-los-reyes",
     "gandia", "sagunto-sagunt", "torrent", "paterna", "el-ejido", "motril", "almunecar",
-    "marbella", "san-pedro-de-alcantara", "sotogrande", "tarifa", "algeciras", "cadiz",
+    "san-pedro-de-alcantara", "sotogrande", "tarifa", "algeciras", "cadiz-capital",
     "ibiza-eivissa", "manacor", "calvia", "llucmajor", "arona", "adeje", "puerto-de-la-cruz",
     "telde", "san-bartolome-de-tirajana", "mogan", "arrecife", "puerto-del-rosario",
 ]
@@ -175,7 +175,7 @@ def extract_fotocasa(params: Tuple[str, str, str, int]) -> Tuple[List[Dict], Lis
     r = fetch_with_backoff(url, headers)
     if not r:
         return [], []
-    soup = BeautifulSoup(r.text, "lxml")
+    soup = BeautifulSoup(r.text, "html.parser")
     items, orgs = [], []
     for sc in soup.find_all("script"):
         if sc.string and '"initialSearch"' in sc.string:
@@ -236,7 +236,7 @@ def extract_immowelt(params: Tuple[str, str, str, int]) -> Tuple[List[Dict], Lis
     r = fetch_with_backoff(url, headers)
     if not r:
         return [], []
-    soup = BeautifulSoup(r.text, "lxml")
+    soup = BeautifulSoup(r.text, "html.parser")
     items, seen = [], set()
     for a_link in soup.find_all("a", href=True):
         href = a_link["href"]
@@ -285,7 +285,7 @@ def extract_subito(params: Tuple[str, str, str, str, int]) -> Tuple[List[Dict], 
     r = fetch_with_backoff(url, headers)
     if not r:
         return [], []
-    soup = BeautifulSoup(r.text, "lxml")
+    soup = BeautifulSoup(r.text, "html.parser")
     sc = soup.find("script", id="__NEXT_DATA__")
     if not sc or not sc.string:
         return [], []
@@ -348,7 +348,7 @@ def extract_otodom(params: Tuple[str, str, str, int]) -> Tuple[List[Dict], List[
     r = fetch_with_backoff(url, headers)
     if not r:
         return [], []
-    soup = BeautifulSoup(r.text, "lxml")
+    soup = BeautifulSoup(r.text, "html.parser")
     sc = soup.find("script", id="__NEXT_DATA__")
     if not sc or not sc.string:
         return [], []
@@ -407,7 +407,7 @@ def extract_finn(params: Tuple[str, str, str, int, int]) -> Tuple[List[Dict], Li
     r = fetch_with_backoff(url, headers)
     if not r:
         return [], []
-    soup = BeautifulSoup(r.text, "lxml")
+    soup = BeautifulSoup(r.text, "html.parser")
     items, orgs = [], []
     for art in soup.find_all("article", class_=lambda c: c and "sf-search-ad" in c):
         link = art.select_one("a")
@@ -446,7 +446,7 @@ def extract_pararius(params: Tuple[str, str, int]) -> Tuple[List[Dict], List[Dic
     r = fetch_with_backoff(url, headers)
     if not r:
         return [], []
-    soup = BeautifulSoup(r.text, "lxml")
+    soup = BeautifulSoup(r.text, "html.parser")
     items, orgs = [], []
     purpose = "for_sale" if "koop" in cat else "for_rent"
     for li in soup.select(".search-list__item--listing"):
@@ -486,7 +486,7 @@ def extract_imovirtual(params: Tuple[str, str, str, int]) -> Tuple[List[Dict], L
     r = fetch_with_backoff(url, headers)
     if not r:
         return [], []
-    soup = BeautifulSoup(r.text, "lxml")
+    soup = BeautifulSoup(r.text, "html.parser")
     sc = soup.find("script", id="__NEXT_DATA__")
     if not sc or not sc.string:
         return [], []
