@@ -1,0 +1,137 @@
+name: Europe 100% Continental Extraction Swarm (20 Runners -> Google Drive)
+
+on:
+  schedule:
+    # Runs automatically every 6 hours until Gap <= 1,000 (100% Completion)
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      max_tasks:
+        description: 'Optional task cap per runner (0 = unlimited full sweep)'
+        required: false
+        default: '0'
+
+jobs:
+  extract_matrix:
+    name: Extract ${{ matrix.portal }} (Shard ${{ matrix.shard_id }}/${{ matrix.total_shards }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include:
+          # Spain Fotocasa (420k gap) -> 6 concurrent runners
+          - { portal: fotocasa_es, shard_id: 0, total_shards: 6 }
+          - { portal: fotocasa_es, shard_id: 1, total_shards: 6 }
+          - { portal: fotocasa_es, shard_id: 2, total_shards: 6 }
+          - { portal: fotocasa_es, shard_id: 3, total_shards: 6 }
+          - { portal: fotocasa_es, shard_id: 4, total_shards: 6 }
+          - { portal: fotocasa_es, shard_id: 5, total_shards: 6 }
+          # Germany Immowelt (216k gap) -> 4 concurrent runners
+          - { portal: immowelt_de, shard_id: 0, total_shards: 4 }
+          - { portal: immowelt_de, shard_id: 1, total_shards: 4 }
+          - { portal: immowelt_de, shard_id: 2, total_shards: 4 }
+          - { portal: immowelt_de, shard_id: 3, total_shards: 4 }
+          # Italy Subito (125k gap) -> 3 concurrent runners
+          - { portal: subito_it, shard_id: 0, total_shards: 3 }
+          - { portal: subito_it, shard_id: 1, total_shards: 3 }
+          - { portal: subito_it, shard_id: 2, total_shards: 3 }
+          # Poland Otodom (113k gap) -> 3 concurrent runners
+          - { portal: otodom_pl, shard_id: 0, total_shards: 3 }
+          - { portal: otodom_pl, shard_id: 1, total_shards: 3 }
+          - { portal: otodom_pl, shard_id: 2, total_shards: 3 }
+          # Norway, Portugal, Netherlands -> 4 concurrent runners
+          - { portal: finn_no, shard_id: 0, total_shards: 1 }
+          - { portal: imovirtual_pt, shard_id: 0, total_shards: 1 }
+          - { portal: pararius_nl, shard_id: 0, total_shards: 2 }
+          - { portal: pararius_nl, shard_id: 1, total_shards: 2 }
+
+    steps:
+      - name: Checkout Cloud Swarm Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Extraction Dependencies & rclone
+        run: |
+          pip install -r requirements.txt
+          sudo apt-get update -qq && sudo apt-get install -y -qq rclone
+
+      - name: Configure rclone Google Drive Remote
+        run: |
+          mkdir -p ~/.config/rclone
+          echo "${{ secrets.RCLONE_CONFIG }}" > ~/.config/rclone/rclone.conf
+
+      - name: Run 35-Worker curl_cffi Shard Extractor
+        run: |
+          MAX_T="${{ github.event.inputs.max_tasks || '0' }}"
+          python3 cloud_worker.py \
+            --portal "${{ matrix.portal }}" \
+            --shard-id "${{ matrix.shard_id }}" \
+            --total-shards "${{ matrix.total_shards }}" \
+            --workers 35 \
+            --max-tasks "$MAX_T" \
+            --output "/tmp/shard_${{ matrix.portal }}_${{ matrix.shard_id }}.sqlite"
+
+      - name: Upload Shard to Google Drive with Bitwise MD5 Checksum
+        run: |
+          rclone copy --checksum -v \
+            "/tmp/shard_${{ matrix.portal }}_${{ matrix.shard_id }}.sqlite" \
+            "gdrive:Europe_Property_Database_Exports/cloud_shards/"
+
+  merge_and_audit:
+    name: Merge All Shards -> Master SQLite + Bitwise MD5 Verification
+    needs: extract_matrix
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout Cloud Swarm Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install rclone
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq rclone
+
+      - name: Configure rclone Google Drive Remote
+        run: |
+          mkdir -p ~/.config/rclone
+          echo "${{ secrets.RCLONE_CONFIG }}" > ~/.config/rclone/rclone.conf
+
+      - name: Pull Latest europe_master.sqlite & All Cloud Shards from Google Drive
+        run: |
+          mkdir -p /tmp/work/shards
+          # Pull latest master database from Google Drive (fallback to 2026-11-20 folder if latest not yet created)
+          rclone copy --checksum -v "gdrive:Europe_Property_Database_Exports/latest/europe_master.sqlite" /tmp/work/ || \
+          rclone copy --checksum -v "gdrive:Europe_Property_Database_Exports/2026-11-20/europe_master.sqlite" /tmp/work/ || true
+          # Pull all completed shards
+          rclone copy --checksum -v "gdrive:Europe_Property_Database_Exports/cloud_shards/" /tmp/work/shards/
+
+      - name: Merge Shards & Run 1,000-Listing Gap Audit
+        run: |
+          python3 cloud_merger.py \
+            --master-db /tmp/work/europe_master.sqlite \
+            --shards-dir /tmp/work/shards \
+            --summary-out /tmp/work/extraction_audit_summary.json
+          cat /tmp/work/extraction_audit_summary.json
+
+      - name: Push Master SQLite & Audit Summary to Google Drive (100% Bitwise MD5)
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          rclone copy --checksum -v /tmp/work/europe_master.sqlite "gdrive:Europe_Property_Database_Exports/latest/"
+          rclone copy --checksum -v /tmp/work/extraction_audit_summary.json "gdrive:Europe_Property_Database_Exports/latest/"
+          rclone copy --checksum -v /tmp/work/europe_master.sqlite "gdrive:Europe_Property_Database_Exports/$TODAY/"
+          rclone copy --checksum -v /tmp/work/extraction_audit_summary.json "gdrive:Europe_Property_Database_Exports/$TODAY/"
+          # Verify remote MD5 parity directly via rclone check
+          rclone check /tmp/work/europe_master.sqlite "gdrive:Europe_Property_Database_Exports/latest/"
+          # Clean merged cloud_shards folder on Drive so next 6h cycle starts fresh
+          rclone delete "gdrive:Europe_Property_Database_Exports/cloud_shards/"
