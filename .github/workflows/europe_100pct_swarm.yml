@@ -62,9 +62,11 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq rclone
 
       - name: Configure rclone Google Drive Remote
+        env:
+          RCLONE_CONFIG_CONTENT: ${{ secrets.RCLONE_CONFIG }}
         run: |
           mkdir -p ~/.config/rclone
-          echo "${{ secrets.RCLONE_CONFIG }}" > ~/.config/rclone/rclone.conf
+          printf '%s\n' "$RCLONE_CONFIG_CONTENT" > ~/.config/rclone/rclone.conf
 
       - name: Run 35-Worker curl_cffi Shard Extractor
         run: |
@@ -103,9 +105,11 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq rclone
 
       - name: Configure rclone Google Drive Remote
+        env:
+          RCLONE_CONFIG_CONTENT: ${{ secrets.RCLONE_CONFIG }}
         run: |
           mkdir -p ~/.config/rclone
-          echo "${{ secrets.RCLONE_CONFIG }}" > ~/.config/rclone/rclone.conf
+          printf '%s\n' "$RCLONE_CONFIG_CONTENT" > ~/.config/rclone/rclone.conf
 
       - name: Pull Latest europe_master.sqlite & All Cloud Shards from Google Drive
         run: |
