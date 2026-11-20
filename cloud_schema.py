@@ -3,6 +3,9 @@ Cloud-Native SQLite WAL Schema, E.164 Contact Normalizer, and Thread-Safe Batch 
 1-to-1 Schema Parity with Master europe_master.sqlite (38 columns in items + orgs + agents + audit_logs).
 """
 
+import csv
+import hashlib
+import json
 import re
 import sqlite3
 import threading
@@ -12,17 +15,126 @@ from typing import Dict, Any, List, Optional
 
 DB_LOCK = threading.Lock()
 
+# All 109 Countries: ISO-2 -> (Country Name, Currency, E.164 Prefix, Approx FX to USD)
 COUNTRY_META = {
-    "ES": ("Spain", "EUR", "+34", 1.06),
-    "IT": ("Italy", "EUR", "+39", 1.06),
-    "DE": ("Germany", "EUR", "+49", 1.06),
-    "PL": ("Poland", "PLN", "+48", 0.25),
-    "PT": ("Portugal", "EUR", "+351", 1.06),
-    "NO": ("Norway", "NOK", "+47", 0.091),
-    "NL": ("Netherlands", "EUR", "+31", 1.06),
-    "AT": ("Austria", "EUR", "+43", 1.06),
+    # MENA (16)
+    "AE": ("United Arab Emirates", "AED", "+971", 0.272),
+    "SA": ("Saudi Arabia", "SAR", "+966", 0.266),
+    "QA": ("Qatar", "QAR", "+974", 0.275),
+    "KW": ("Kuwait", "KWD", "+965", 3.25),
+    "BH": ("Bahrain", "BHD", "+973", 2.65),
+    "OM": ("Oman", "OMR", "+968", 2.60),
+    "EG": ("Egypt", "EGP", "+20", 0.020),
+    "JO": ("Jordan", "JOD", "+962", 1.41),
+    "LB": ("Lebanon", "LBP", "+961", 0.000011),
+    "IQ": ("Iraq", "IQD", "+964", 0.00076),
+    "MA": ("Morocco", "MAD", "+212", 0.10),
+    "TN": ("Tunisia", "TND", "+216", 0.32),
+    "DZ": ("Algeria", "DZD", "+213", 0.0074),
+    "IL": ("Israel", "ILS", "+972", 0.27),
+    "TR": ("Turkey", "TRY", "+90", 0.029),
+    "IR": ("Iran", "IRR", "+98", 0.000024),
+    # North America (3)
+    "US": ("United States", "USD", "+1", 1.00),
+    "CA": ("Canada", "CAD", "+1", 0.72),
+    "MX": ("Mexico", "MXN", "+52", 0.050),
+    # Europe (34)
+    "GB": ("United Kingdom", "GBP", "+44", 1.27),
     "IE": ("Ireland", "EUR", "+353", 1.06),
+    "FR": ("France", "EUR", "+33", 1.06),
+    "DE": ("Germany", "EUR", "+49", 1.06),
+    "ES": ("Spain", "EUR", "+34", 1.06),
+    "PT": ("Portugal", "EUR", "+351", 1.06),
+    "IT": ("Italy", "EUR", "+39", 1.06),
+    "NL": ("Netherlands", "EUR", "+31", 1.06),
+    "BE": ("Belgium", "EUR", "+32", 1.06),
+    "CH": ("Switzerland", "CHF", "+41", 1.13),
+    "AT": ("Austria", "EUR", "+43", 1.06),
+    "PL": ("Poland", "PLN", "+48", 0.25),
+    "SE": ("Sweden", "SEK", "+46", 0.092),
+    "NO": ("Norway", "NOK", "+47", 0.091),
+    "DK": ("Denmark", "DKK", "+45", 0.142),
+    "FI": ("Finland", "EUR", "+358", 1.06),
+    "GR": ("Greece", "EUR", "+30", 1.06),
+    "RO": ("Romania", "RON", "+40", 0.213),
+    "UA": ("Ukraine", "UAH", "+380", 0.024),
+    "RU": ("Russia", "RUB", "+7", 0.010),
+    "CZ": ("Czech Republic", "CZK", "+420", 0.042),
+    "HU": ("Hungary", "HUF", "+36", 0.0026),
+    "BG": ("Bulgaria", "BGN", "+359", 0.54),
+    "HR": ("Croatia", "EUR", "+385", 1.06),
+    "RS": ("Serbia", "RSD", "+381", 0.0091),
+    "SK": ("Slovakia", "EUR", "+421", 1.06),
+    "SI": ("Slovenia", "EUR", "+386", 1.06),
+    "EE": ("Estonia", "EUR", "+372", 1.06),
+    "LV": ("Latvia", "EUR", "+371", 1.06),
+    "LT": ("Lithuania", "EUR", "+370", 1.06),
+    "CY": ("Cyprus", "EUR", "+357", 1.06),
+    "MT": ("Malta", "EUR", "+356", 1.06),
+    "LU": ("Luxembourg", "EUR", "+352", 1.06),
+    "IS": ("Iceland", "ISK", "+354", 0.0072),
+    # Asia-Pacific (24)
+    "IN": ("India", "INR", "+91", 0.0119),
+    "PK": ("Pakistan", "PKR", "+92", 0.0036),
+    "BD": ("Bangladesh", "BDT", "+880", 0.0084),
+    "LK": ("Sri Lanka", "LKR", "+94", 0.0034),
+    "NP": ("Nepal", "NPR", "+977", 0.0074),
+    "CN": ("China", "CNY", "+86", 0.138),
+    "JP": ("Japan", "JPY", "+81", 0.0065),
+    "KR": ("South Korea", "KRW", "+82", 0.00072),
+    "TW": ("Taiwan", "TWD", "+886", 0.031),
+    "HK": ("Hong Kong", "HKD", "+852", 0.128),
+    "SG": ("Singapore", "SGD", "+65", 0.745),
+    "MY": ("Malaysia", "MYR", "+60", 0.225),
+    "ID": ("Indonesia", "IDR", "+62", 0.000063),
+    "TH": ("Thailand", "THB", "+66", 0.029),
+    "VN": ("Vietnam", "VND", "+84", 0.000039),
+    "PH": ("Philippines", "PHP", "+63", 0.017),
+    "KH": ("Cambodia", "KHR", "+855", 0.000245),
+    "AU": ("Australia", "AUD", "+61", 0.65),
+    "NZ": ("New Zealand", "NZD", "+64", 0.59),
+    "KZ": ("Kazakhstan", "KZT", "+7", 0.0020),
+    "UZ": ("Uzbekistan", "UZS", "+998", 0.000078),
+    "GE": ("Georgia", "GEL", "+995", 0.365),
+    "AZ": ("Azerbaijan", "AZN", "+994", 0.588),
+    "AM": ("Armenia", "AMD", "+374", 0.00255),
+    # Latin America (14)
+    "BR": ("Brazil", "BRL", "+55", 0.173),
+    "AR": ("Argentina", "ARS", "+54", 0.0010),
+    "CO": ("Colombia", "COP", "+57", 0.00023),
+    "CL": ("Chile", "CLP", "+56", 0.00103),
+    "PE": ("Peru", "PEN", "+51", 0.265),
+    "EC": ("Ecuador", "USD", "+593", 1.00),
+    "UY": ("Uruguay", "UYU", "+598", 0.0235),
+    "PY": ("Paraguay", "PYG", "+595", 0.000128),
+    "BO": ("Bolivia", "BOB", "+591", 0.145),
+    "VE": ("Venezuela", "VES", "+58", 0.022),
+    "CR": ("Costa Rica", "CRC", "+506", 0.00195),
+    "PA": ("Panama", "USD", "+507", 1.00),
+    "DO": ("Dominican Republic", "DOP", "+1", 0.0166),
+    "GT": ("Guatemala", "GTQ", "+502", 0.129),
+    # Africa (18)
+    "ZA": ("South Africa", "ZAR", "+27", 0.055),
+    "NG": ("Nigeria", "NGN", "+234", 0.00060),
+    "KE": ("Kenya", "KES", "+254", 0.0077),
+    "GH": ("Ghana", "GHS", "+233", 0.062),
+    "UG": ("Uganda", "UGX", "+256", 0.00027),
+    "TZ": ("Tanzania", "TZS", "+255", 0.00037),
+    "ET": ("Ethiopia", "ETB", "+251", 0.0080),
+    "SN": ("Senegal", "XOF", "+221", 0.00162),
+    "CI": ("Ivory Coast", "XOF", "+225", 0.00162),
+    "CM": ("Cameroon", "XAF", "+237", 0.00162),
+    "MU": ("Mauritius", "MUR", "+230", 0.0215),
+    "NA": ("Namibia", "NAD", "+264", 0.055),
+    "BW": ("Botswana", "BWP", "+267", 0.073),
+    "ZW": ("Zimbabwe", "USD", "+263", 1.00),
+    "ZM": ("Zambia", "ZMW", "+260", 0.037),
+    "RW": ("Rwanda", "RWF", "+250", 0.00073),
+    "MZ": ("Mozambique", "MZN", "+258", 0.0156),
+    "AO": ("Angola", "AOA", "+244", 0.0011),
 }
+
+COUNTRY_NAME_TO_CODE = {v[0].lower(): k for k, v in COUNTRY_META.items()}
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS items (
@@ -124,6 +236,8 @@ def init_shard_db(db_path: Path) -> sqlite3.Connection:
     conn = sqlite3.connect(str(db_path), timeout=30, check_same_thread=False)
     conn.execute("PRAGMA journal_mode=WAL;")
     conn.execute("PRAGMA synchronous=NORMAL;")
+    conn.execute("PRAGMA cache_size=-64000;")
+    conn.execute("PRAGMA temp_store=MEMORY;")
     conn.executescript(SCHEMA_SQL)
     conn.commit()
     return conn
@@ -253,3 +367,92 @@ def upsert_batch(conn: sqlite3.Connection, items: List[Dict[str, Any]], orgs: Li
             cur.executemany(sql_orgs, orgs)
         conn.commit()
     return len(items)
+
+
+def md5_file(path: Path) -> str:
+    h = hashlib.md5()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def export_shard_deliverables(
+    db_path: Path,
+    out_dir: Path,
+    portal_domain: str,
+    shard_index: int,
+    extra_meta: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """
+    Exports a finalized SQLite shard into uncompressed .csv, .jsonl, and
+    extraction_audit_summary.json with bitwise MD5 checksums.
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+    safe_portal = re.sub(r"[^a-zA-Z0-9_.-]+", "_", portal_domain.lower())
+    stem = f"{safe_portal}_shard_{shard_index:04d}"
+
+    # Checkpoint WAL into main .sqlite file before hashing
+    conn = sqlite3.connect(str(db_path), timeout=30)
+    conn.execute("PRAGMA wal_checkpoint(TRUNCATE);")
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+
+    csv_path = out_dir / f"{stem}.csv"
+    jsonl_path = out_dir / f"{stem}.jsonl"
+    summary_path = out_dir / "extraction_audit_summary.json"
+
+    total_rows = 0
+    with_phone = 0
+    category_counts: Dict[str, int] = {}
+
+    cols_sql = ", ".join(ITEM_COLS)
+    cur.execute(f"SELECT {cols_sql} FROM items")
+
+    with csv_path.open("w", encoding="utf-8", newline="") as f_csv, jsonl_path.open("w", encoding="utf-8") as f_jsonl:
+        writer = csv.writer(f_csv)
+        writer.writerow(ITEM_COLS)
+        while True:
+            rows = cur.fetchmany(5000)
+            if not rows:
+                break
+            for row in rows:
+                vals = [row[c] for c in ITEM_COLS]
+                writer.writerow(vals)
+                rec = dict(zip(ITEM_COLS, vals))
+                f_jsonl.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                total_rows += 1
+                if rec.get("agent_phone"):
+                    with_phone += 1
+                cat = rec.get("category") or "uncategorized"
+                category_counts[cat] = category_counts.get(cat, 0) + 1
+
+    conn.close()
+
+    # Copy/move sqlite if not already inside out_dir
+    target_sqlite = out_dir / f"{stem}.sqlite"
+    if db_path.resolve() != target_sqlite.resolve():
+        import shutil
+        shutil.copy2(db_path, target_sqlite)
+
+    contact_pct = round((with_phone / total_rows) * 100.0, 2) if total_rows else 0.0
+    summary = {
+        "portal_domain": portal_domain,
+        "shard_index": shard_index,
+        "total_listings": total_rows,
+        "with_phone_e164": with_phone,
+        "contact_coverage_pct": contact_pct,
+        "category_breakdown": category_counts,
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "files": {
+            "sqlite": {"name": target_sqlite.name, "bytes": target_sqlite.stat().st_size, "md5": md5_file(target_sqlite)},
+            "csv": {"name": csv_path.name, "bytes": csv_path.stat().st_size, "md5": md5_file(csv_path)},
+            "jsonl": {"name": jsonl_path.name, "bytes": jsonl_path.stat().st_size, "md5": md5_file(jsonl_path)},
+        },
+    }
+    if extra_meta:
+        summary["meta"] = extra_meta
+
+    summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
+    return summary
+

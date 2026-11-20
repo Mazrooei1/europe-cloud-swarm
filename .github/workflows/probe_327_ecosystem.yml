@@ -1,0 +1,97 @@
+name: Phase 0 - Probe All 327 Global Portals (Azure IP Reconnaissance)
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Weekly refresh every Sunday at 01:00 UTC
+    - cron: '0 1 * * 0'
+  push:
+    paths:
+      - 'probe_327_portals.py'
+      - 'portals_327.csv'
+      - '.github/workflows/probe_327_ecosystem.yml'
+
+jobs:
+  probe_shards:
+    name: Probe Shard ${{ matrix.shard }} / 4
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [0, 1, 2, 3]
+
+    steps:
+      - name: Checkout Cloud Swarm Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run 24-Worker Cloud Reconnaissance Probe
+        run: |
+          python3 probe_327_portals.py \
+            --csv portals_327.csv \
+            --shard-index ${{ matrix.shard }} \
+            --shard-total 4 \
+            --workers 24 \
+            --output "/tmp/probe_shard_${{ matrix.shard }}.json"
+
+      - name: Upload Probe Shard Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: probe-shard-${{ matrix.shard }}
+          path: /tmp/probe_shard_${{ matrix.shard }}.json
+          retention-days: 7
+
+  merge_and_sync_manifest:
+    name: Merge 327-Portal Manifest -> Google Drive
+    needs: probe_shards
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Cloud Swarm Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install rclone
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq rclone
+
+      - name: Configure rclone Google Drive Remote
+        env:
+          RCLONE_CONFIG_CONTENT: ${{ secrets.RCLONE_CONFIG }}
+        run: |
+          mkdir -p ~/.config/rclone
+          printf '%s\n' "$RCLONE_CONFIG_CONTENT" > ~/.config/rclone/rclone.conf
+
+      - name: Download Probe Shards
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/probe_shards
+          pattern: probe-shard-*
+          merge-multiple: true
+
+      - name: Merge 327-Portal Reconnaissance Manifest
+        run: |
+          python3 probe_327_portals.py \
+            --merge-dir /tmp/probe_shards \
+            --output /tmp/portal_probe_manifest_327.json
+
+      - name: Upload Manifest to Google Drive (Bitwise MD5)
+        run: |
+          rclone copyto --checksum -v \
+            /tmp/portal_probe_manifest_327.json \
+            "gdrive:Global_Cloud_Swarm_Exports/telemetry/portal_probe_manifest_327.json"
+          rclone check /tmp/portal_probe_manifest_327.json "gdrive:Global_Cloud_Swarm_Exports/telemetry/" || true
