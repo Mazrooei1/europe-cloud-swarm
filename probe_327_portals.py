@@ -20,7 +20,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from curl_cffi import requests
+try:
+    from curl_cffi import requests
+except ImportError:
+    requests = None  # Only needed for probing, not --merge-dir
 
 from cloud_schema import COUNTRY_NAME_TO_CODE
 
