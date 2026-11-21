@@ -1,20 +1,26 @@
-name: Global 327-Portal Resumable Wave Swarm (5h Checkpointed Shards -> Google Drive)
+name: Global 327-Portal Resumable Wave Swarm (156 Open-Sitemap Portals -> Google Drive)
 
 on:
   schedule:
-    # Staggered 6-hour continuous checkpointed waves (00:30, 06:30, 12:30, 18:30 UTC)
+    # Continuous staggered 6-hour waves rotating across all 8 batches (156 confirmed reachable portals)
     - cron: '30 0,6,12,18 * * *'
   workflow_dispatch:
     inputs:
       wave:
-        description: 'Wave batch to run (wave1_top20, wave1_next20, wave1_final10, or custom)'
+        description: 'Batch from reachable_158_waves.json (batch_1..batch_8, or auto)'
         required: true
-        default: 'wave1_top20'
+        default: 'batch_1'
         type: choice
         options:
-          - wave1_top20
-          - wave1_next20
-          - wave1_final10
+          - batch_1
+          - batch_2
+          - batch_3
+          - batch_4
+          - batch_5
+          - batch_6
+          - batch_7
+          - batch_8
+          - auto
       max_minutes:
         description: 'Soft time budget per runner in minutes (default 290 = 4h50m)'
         required: false
@@ -26,35 +32,31 @@ on:
 
 jobs:
   select_wave_matrix:
-    name: Build 20-Runner Wave Matrix
+    name: Build 20-Runner Reachable Wave Matrix
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Select Top 50 Mega-Portal Wave Batch
+      - name: Checkout Cloud Swarm Repository
+        uses: actions/checkout@v4
+
+      - name: Load Confirmed Reachable Batch from reachable_158_waves.json
         id: set-matrix
         run: |
-          WAVE="${{ github.event.inputs.wave || '' }}"
-          if [ -z "$WAVE" ]; then
-            HOUR=$(date -u +%H)
-            if [ "$HOUR" -lt 8 ]; then
-              WAVE="wave1_top20"
-            elif [ "$HOUR" -lt 16 ]; then
-              WAVE="wave1_next20"
-            else
-              WAVE="wave1_final10"
-            fi
-          fi
-          echo "Selected wave: $WAVE"
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os, time
+          from pathlib import Path
 
-          if [ "$WAVE" = "wave1_top20" ]; then
-            MATRIX='{"include":[{"domain":"avito.ru","cc":"RU"},{"domain":"58.com","cc":"CN"},{"domain":"leboncoin.fr","cc":"FR"},{"domain":"ke.com","cc":"CN"},{"domain":"olx.com.br","cc":"BR"},{"domain":"kleinanzeigen.de","cc":"DE"},{"domain":"craigslist.org","cc":"US"},{"domain":"olx.in","cc":"IN"},{"domain":"anjuke.com","cc":"CN"},{"domain":"sahibinden.com","cc":"TR"},{"domain":"zillow.com","cc":"US"},{"domain":"suumo.jp","cc":"JP"},{"domain":"marktplaats.nl","cc":"NL"},{"domain":"realtor.com","cc":"US"},{"domain":"milanuncios.com","cc":"ES"},{"domain":"divar.ir","cc":"IR"},{"domain":"olx.pl","cc":"PL"},{"domain":"haraj.com.sa","cc":"SA"},{"domain":"cian.ru","cc":"RU"},{"domain":"homes.co.jp","cc":"JP"}]}'
-          elif [ "$WAVE" = "wave1_next20" ]; then
-            MATRIX='{"include":[{"domain":"zapimoveis.com.br","cc":"BR"},{"domain":"subito.it","cc":"IT"},{"domain":"athome.co.jp","cc":"JP"},{"domain":"magicbricks.com","cc":"IN"},{"domain":"gumtree.com","cc":"GB"},{"domain":"vivareal.com.br","cc":"BR"},{"domain":"idealista.com","cc":"ES"},{"domain":"domclick.ru","cc":"RU"},{"domain":"99acres.com","cc":"IN"},{"domain":"dubizzle.com","cc":"AE"},{"domain":"immobiliare.it","cc":"IT"},{"domain":"kijiji.ca","cc":"CA"},{"domain":"rightmove.co.uk","cc":"GB"},{"domain":"seloger.com","cc":"FR"},{"domain":"idealista.it","cc":"IT"},{"domain":"immobilienscout24.de","cc":"DE"},{"domain":"bienici.com","cc":"FR"},{"domain":"fotocasa.es","cc":"ES"},{"domain":"zoopla.co.uk","cc":"GB"},{"domain":"olx.pt","cc":"PT"}]}'
-          else
-            MATRIX='{"include":[{"domain":"batdongsan.com.vn","cc":"VN"},{"domain":"rumah123.com","cc":"ID"},{"domain":"opensooq.com","cc":"OM"},{"domain":"immowelt.de","cc":"DE"},{"domain":"zonaprop.com.ar","cc":"AR"},{"domain":"zameen.com","cc":"PK"},{"domain":"vivanuncios.com.mx","cc":"MX"},{"domain":"property24.com","cc":"ZA"},{"domain":"realestate.com.au","cc":"AU"},{"domain":"willhaben.at","cc":"AT"}]}'
-          fi
-          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+          data = json.loads(Path("reachable_158_waves.json").read_text(encoding="utf-8"))
+          batches = data["batches"]
+          wave = "${{ github.event.inputs.wave || 'auto' }}".strip()
+          if not wave or wave == "auto":
+              # Rotate deterministically across all 8 batches every 6 hours
+              slot = int(time.time() // (6 * 3600)) % len(batches) + 1
+              wave = f"batch_{slot}"
+          selected = batches.get(wave, batches["batch_1"])
+          print("matrix=" + json.dumps({"include": selected}, separators=(",", ":")))
+          PY
 
   extract_wave_shards:
     name: Extract ${{ matrix.domain }} (${{ matrix.cc }})

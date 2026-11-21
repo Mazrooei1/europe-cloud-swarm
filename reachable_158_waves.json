@@ -1,0 +1,647 @@
+{
+  "total_reachable_sitemap_portals": 156,
+  "total_reachable_capacity": 56202250,
+  "batch_count": 8,
+  "batches": {
+    "batch_1": [
+      {
+        "domain": "58.com",
+        "cc": "CN"
+      },
+      {
+        "domain": "leboncoin.fr",
+        "cc": "FR"
+      },
+      {
+        "domain": "ke.com",
+        "cc": "CN"
+      },
+      {
+        "domain": "craigslist.org",
+        "cc": "US"
+      },
+      {
+        "domain": "kleinanzeigen.de",
+        "cc": "DE"
+      },
+      {
+        "domain": "olx.in",
+        "cc": "IN"
+      },
+      {
+        "domain": "zillow.com",
+        "cc": "US"
+      },
+      {
+        "domain": "marktplaats.nl",
+        "cc": "NL"
+      },
+      {
+        "domain": "olx.pl",
+        "cc": "PL"
+      },
+      {
+        "domain": "haraj.com.sa",
+        "cc": "SA"
+      },
+      {
+        "domain": "homes.co.jp",
+        "cc": "JP"
+      },
+      {
+        "domain": "magicbricks.com",
+        "cc": "IN"
+      },
+      {
+        "domain": "gumtree.com",
+        "cc": "GB"
+      },
+      {
+        "domain": "athome.co.jp",
+        "cc": "JP"
+      },
+      {
+        "domain": "immobiliare.it",
+        "cc": "IT"
+      },
+      {
+        "domain": "rightmove.co.uk",
+        "cc": "GB"
+      },
+      {
+        "domain": "bienici.com",
+        "cc": "FR"
+      },
+      {
+        "domain": "olx.pt",
+        "cc": "PT"
+      },
+      {
+        "domain": "rumah123.com",
+        "cc": "ID"
+      },
+      {
+        "domain": "immowelt.de",
+        "cc": "DE"
+      }
+    ],
+    "batch_2": [
+      {
+        "domain": "zonaprop.com.ar",
+        "cc": "AR"
+      },
+      {
+        "domain": "zameen.com",
+        "cc": "PK"
+      },
+      {
+        "domain": "willhaben.at",
+        "cc": "AT"
+      },
+      {
+        "domain": "hitad.lk",
+        "cc": "LK"
+      },
+      {
+        "domain": "myrealty.am",
+        "cc": "AM"
+      },
+      {
+        "domain": "gumtree.com.au",
+        "cc": "AU"
+      },
+      {
+        "domain": "alonhadat.com.vn",
+        "cc": "VN"
+      },
+      {
+        "domain": "ips-cambodia.com",
+        "cc": "KH"
+      },
+      {
+        "domain": "oneroof.co.nz",
+        "cc": "NZ"
+      },
+      {
+        "domain": "kaidee.com",
+        "cc": "TH"
+      },
+      {
+        "domain": "kn.kz",
+        "cc": "KZ"
+      },
+      {
+        "domain": "mudah.my",
+        "cc": "MY"
+      },
+      {
+        "domain": "rakuya.com.tw",
+        "cc": "TW"
+      },
+      {
+        "domain": "lamudi.co.id",
+        "cc": "ID"
+      },
+      {
+        "domain": "place.ge",
+        "cc": "GE"
+      },
+      {
+        "domain": "finn.no",
+        "cc": "NO"
+      },
+      {
+        "domain": "fincaraiz.com.co",
+        "cc": "CO"
+      },
+      {
+        "domain": "yad2.co.il",
+        "cc": "IL"
+      },
+      {
+        "domain": "domain.com.au",
+        "cc": "AU"
+      },
+      {
+        "domain": "krisha.kz",
+        "cc": "KZ"
+      }
+    ],
+    "batch_3": [
+      {
+        "domain": "hamrobazaar.com",
+        "cc": "NP"
+      },
+      {
+        "domain": "591.com.tw",
+        "cc": "TW"
+      },
+      {
+        "domain": "propertyfinder.ae",
+        "cc": "AE"
+      },
+      {
+        "domain": "myhome.ge",
+        "cc": "GE"
+      },
+      {
+        "domain": "ikman.lk",
+        "cc": "LK"
+      },
+      {
+        "domain": "realestate.com.kh",
+        "cc": "KH"
+      },
+      {
+        "domain": "trademe.co.nz",
+        "cc": "NZ"
+      },
+      {
+        "domain": "olx.uz",
+        "cc": "UZ"
+      },
+      {
+        "domain": "oikotie.fi",
+        "cc": "FI"
+      },
+      {
+        "domain": "4zida.rs",
+        "cc": "RS"
+      },
+      {
+        "domain": "okidoki.ee",
+        "cc": "EE"
+      },
+      {
+        "domain": "wortimmo.lu",
+        "cc": "LU"
+      },
+      {
+        "domain": "lun.ua",
+        "cc": "UA"
+      },
+      {
+        "domain": "reality.sk",
+        "cc": "SK"
+      },
+      {
+        "domain": "zenga.hu",
+        "cc": "HU"
+      },
+      {
+        "domain": "bezrealitky.cz",
+        "cc": "CZ"
+      },
+      {
+        "domain": "storia.ro",
+        "cc": "RO"
+      },
+      {
+        "domain": "bayut.com",
+        "cc": "AE"
+      },
+      {
+        "domain": "otodom.pl",
+        "cc": "PL"
+      },
+      {
+        "domain": "lamudi.com.ph",
+        "cc": "PH"
+      }
+    ],
+    "batch_4": [
+      {
+        "domain": "estate.am",
+        "cc": "AM"
+      },
+      {
+        "domain": "olx.com.pk",
+        "cc": "PK"
+      },
+      {
+        "domain": "khmer24.com",
+        "cc": "KH"
+      },
+      {
+        "domain": "gharbazar.com",
+        "cc": "NP"
+      },
+      {
+        "domain": "realestate.co.nz",
+        "cc": "NZ"
+      },
+      {
+        "domain": "99.co",
+        "cc": "SG"
+      },
+      {
+        "domain": "chotot.com",
+        "cc": "VN"
+      },
+      {
+        "domain": "uybor.uz",
+        "cc": "UZ"
+      },
+      {
+        "domain": "olx.kz",
+        "cc": "KZ"
+      },
+      {
+        "domain": "conlallave.com",
+        "cc": "VE"
+      },
+      {
+        "domain": "buscocasa.com",
+        "cc": "PA"
+      },
+      {
+        "domain": "yapo.cl",
+        "cc": "CL"
+      },
+      {
+        "domain": "hendyla.com",
+        "cc": "PY"
+      },
+      {
+        "domain": "imobiliare.ro",
+        "cc": "RO"
+      },
+      {
+        "domain": "boligsiden.dk",
+        "cc": "DK"
+      },
+      {
+        "domain": "etuovi.com",
+        "cc": "FI"
+      },
+      {
+        "domain": "gratka.pl",
+        "cc": "PL"
+      },
+      {
+        "domain": "ss.lv",
+        "cc": "LV"
+      },
+      {
+        "domain": "imot.bg",
+        "cc": "BG"
+      },
+      {
+        "domain": "dom.ria.com",
+        "cc": "UA"
+      }
+    ],
+    "batch_5": [
+      {
+        "domain": "athome.lu",
+        "cc": "LU"
+      },
+      {
+        "domain": "nehnutelnosti.sk",
+        "cc": "SK"
+      },
+      {
+        "domain": "sreality.cz",
+        "cc": "CZ"
+      },
+      {
+        "domain": "njuskalo.hr",
+        "cc": "HR"
+      },
+      {
+        "domain": "immoweb.be",
+        "cc": "BE"
+      },
+      {
+        "domain": "infocasas.com.uy",
+        "cc": "UY"
+      },
+      {
+        "domain": "infocasas.com.bo",
+        "cc": "BO"
+      },
+      {
+        "domain": "infocasas.com.py",
+        "cc": "PY"
+      },
+      {
+        "domain": "supercasas.com",
+        "cc": "DO"
+      },
+      {
+        "domain": "funda.nl",
+        "cc": "NL"
+      },
+      {
+        "domain": "plusvalia.com",
+        "cc": "EC"
+      },
+      {
+        "domain": "urbania.pe",
+        "cc": "PE"
+      },
+      {
+        "domain": "mbl.is",
+        "cc": "IS"
+      },
+      {
+        "domain": "immoscout24.ch",
+        "cc": "CH"
+      },
+      {
+        "domain": "xe.gr",
+        "cc": "GR"
+      },
+      {
+        "domain": "index.hr",
+        "cc": "HR"
+      },
+      {
+        "domain": "jofogas.hu",
+        "cc": "HU"
+      },
+      {
+        "domain": "blocket.se",
+        "cc": "SE"
+      },
+      {
+        "domain": "tori.fi",
+        "cc": "FI"
+      },
+      {
+        "domain": "dba.dk",
+        "cc": "DK"
+      }
+    ],
+    "batch_6": [
+      {
+        "domain": "2dehands.be",
+        "cc": "BE"
+      },
+      {
+        "domain": "bolha.com",
+        "cc": "SI"
+      },
+      {
+        "domain": "olx.ua",
+        "cc": "UA"
+      },
+      {
+        "domain": "olx.bg",
+        "cc": "BG"
+      },
+      {
+        "domain": "olx.ro",
+        "cc": "RO"
+      },
+      {
+        "domain": "propertymarket.com.mt",
+        "cc": "MT"
+      },
+      {
+        "domain": "sarouty.ma",
+        "cc": "MA"
+      },
+      {
+        "domain": "mzadqatar.com",
+        "cc": "QA"
+      },
+      {
+        "domain": "dubizzle.com.eg",
+        "cc": "EG"
+      },
+      {
+        "domain": "kilid.com",
+        "cc": "IR"
+      },
+      {
+        "domain": "homeless.co.il",
+        "cc": "IL"
+      },
+      {
+        "domain": "homegate.ch",
+        "cc": "CH"
+      },
+      {
+        "domain": "imovirtual.com",
+        "cc": "PT"
+      },
+      {
+        "domain": "crautos.com",
+        "cc": "CR"
+      },
+      {
+        "domain": "citymax-gt.com",
+        "cc": "GT"
+      },
+      {
+        "domain": "clasipar.paraguay.com",
+        "cc": "PY"
+      },
+      {
+        "domain": "corotos.com.do",
+        "cc": "DO"
+      },
+      {
+        "domain": "gallito.com.uy",
+        "cc": "UY"
+      },
+      {
+        "domain": "toctoc.com",
+        "cc": "CL"
+      },
+      {
+        "domain": "immobilienscout24.at",
+        "cc": "AT"
+      }
+    ],
+    "batch_7": [
+      {
+        "domain": "bayut.sa",
+        "cc": "SA"
+      },
+      {
+        "domain": "mubawab.tn",
+        "cc": "TN"
+      },
+      {
+        "domain": "mubawab.ma",
+        "cc": "MA"
+      },
+      {
+        "domain": "propertybook.co.zw",
+        "cc": "ZW"
+      },
+      {
+        "domain": "namcars.net",
+        "cc": "NA"
+      },
+      {
+        "domain": "maisvendas.co.mz",
+        "cc": "MZ"
+      },
+      {
+        "domain": "zoomtanzania.net",
+        "cc": "TZ"
+      },
+      {
+        "domain": "jumia.sn",
+        "cc": "SN"
+      },
+      {
+        "domain": "kerawa.com",
+        "cc": "CM"
+      },
+      {
+        "domain": "qatarliving.com",
+        "cc": "QA"
+      },
+      {
+        "domain": "iq.opensooq.com",
+        "cc": "IQ"
+      },
+      {
+        "domain": "bayut.jo",
+        "cc": "JO"
+      },
+      {
+        "domain": "tayara.tn",
+        "cc": "TN"
+      },
+      {
+        "domain": "avito.ma",
+        "cc": "MA"
+      },
+      {
+        "domain": "sheypoor.com",
+        "cc": "IR"
+      },
+      {
+        "domain": "beytic.com",
+        "cc": "DZ"
+      },
+      {
+        "domain": "madlan.co.il",
+        "cc": "IL"
+      },
+      {
+        "domain": "propertyfinder.bh",
+        "cc": "BH"
+      },
+      {
+        "domain": "propertyfinder.eg",
+        "cc": "EG"
+      },
+      {
+        "domain": "immonet.at",
+        "cc": "AT"
+      }
+    ],
+    "batch_8": [
+      {
+        "domain": "angocasa.com",
+        "cc": "AO"
+      },
+      {
+        "domain": "houseinrwanda.com",
+        "cc": "RW"
+      },
+      {
+        "domain": "lexpressproperty.com",
+        "cc": "MU"
+      },
+      {
+        "domain": "propertyfinder.qa",
+        "cc": "QA"
+      },
+      {
+        "domain": "meqasa.com",
+        "cc": "GH"
+      },
+      {
+        "domain": "coinafrique.com",
+        "cc": "CM"
+      },
+      {
+        "domain": "propertycloud.mu",
+        "cc": "MU"
+      },
+      {
+        "domain": "lamudi.co.ug",
+        "cc": "UG"
+      },
+      {
+        "domain": "classifieds.co.zw",
+        "cc": "ZW"
+      },
+      {
+        "domain": "kupatana.com",
+        "cc": "TZ"
+      },
+      {
+        "domain": "jumia.ci",
+        "cc": "CI"
+      },
+      {
+        "domain": "privateproperty.co.za",
+        "cc": "ZA"
+      },
+      {
+        "domain": "hybel.no",
+        "cc": "NO"
+      },
+      {
+        "domain": "daft.ie",
+        "cc": "IE"
+      },
+      {
+        "domain": "myhome.ie",
+        "cc": "IE"
+      },
+      {
+        "domain": "krogsveen.no",
+        "cc": "NO"
+      }
+    ]
+  }
+}

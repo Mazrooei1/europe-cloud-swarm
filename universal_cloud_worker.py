@@ -346,12 +346,26 @@ def extract_detail_record(url: str, html: str, domain: str, country_code: str) -
 
 
 def discover_child_sitemaps(domain: str, max_sitemaps: int = 50000) -> List[str]:
-    """Discovers all child XML sitemaps for a domain via robots.txt & sitemap_index.xml."""
+    """Discovers all child XML sitemaps for a domain via redirected origin + robots.txt & sitemap_index.xml."""
     roots: List[str] = []
-    origin = f"https://{domain}"
+    candidate_origins: List[str] = []
 
-    # Check apex then www
-    for base in (f"https://{domain}", f"https://www.{domain}"):
+    # Resolve homepage redirect first to capture exact canonical origin (e.g. www. or regional subdomain)
+    try:
+        s = get_session()
+        r = s.get(f"https://{domain}/", timeout=10, allow_redirects=True)
+        m = re.match(r"^(https?://[^/]+)", str(r.url))
+        if m:
+            candidate_origins.append(m.group(1))
+    except Exception:
+        pass
+
+    for fallback_base in (f"https://{domain}", f"https://www.{domain}"):
+        if fallback_base not in candidate_origins:
+            candidate_origins.append(fallback_base)
+
+    origin = candidate_origins[0]
+    for base in candidate_origins:
         res = fetch_url(f"{base}/robots.txt", timeout=10)
         if res and res[0] == 200:
             origin = base
@@ -363,7 +377,7 @@ def discover_child_sitemaps(domain: str, max_sitemaps: int = 50000) -> List[str]
                 break
 
     if not roots:
-        for base in (origin, f"https://www.{domain}"):
+        for base in candidate_origins:
             for path in ("/sitemap_index.xml", "/sitemap.xml", "/sitemaps.xml"):
                 res = fetch_url(f"{base}{path}", timeout=10)
                 if res and res[0] == 200 and "<loc>" in res[1].lower():
