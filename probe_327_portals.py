@@ -5,6 +5,8 @@ to classify every portal into REACHABLE_* vs WAF_BLOCKED / GEO_BLOCKED / UNREACH
 and discover XML sitemaps + SSR hydration payloads (__NEXT_DATA__, JSON-LD, etc.).
 """
 
+from __future__ import annotations
+
 import argparse
 import concurrent.futures
 import csv
