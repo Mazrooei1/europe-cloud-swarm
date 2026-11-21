@@ -345,7 +345,7 @@ def extract_detail_record(url: str, html: str, domain: str, country_code: str) -
     return normalize_item(raw_item, country_code, domain)
 
 
-def discover_child_sitemaps(domain: str, max_sitemaps: int = 5000) -> List[str]:
+def discover_child_sitemaps(domain: str, max_sitemaps: int = 50000) -> List[str]:
     """Discovers all child XML sitemaps for a domain via robots.txt & sitemap_index.xml."""
     roots: List[str] = []
     origin = f"https://{domain}"
@@ -396,20 +396,25 @@ def discover_child_sitemaps(domain: str, max_sitemaps: int = 5000) -> List[str]:
     return child_sitemaps
 
 
-def rclone_cmd(args: List[str], check: bool = False) -> bool:
-    try:
-        proc = subprocess.run(["rclone"] + args, capture_output=True, text=True, timeout=900)
-        if proc.returncode != 0:
-            logger.warning("rclone %s failed (rc=%d): %s", " ".join(args[:3]), proc.returncode, proc.stderr[:300])
-            if check:
+def rclone_cmd(args: List[str], check: bool = False, retries: int = 3) -> bool:
+    for attempt in range(retries):
+        try:
+            proc = subprocess.run(["rclone"] + args, capture_output=True, text=True, timeout=900)
+            if proc.returncode == 0:
+                return True
+            logger.warning("rclone %s failed (attempt %d/%d, rc=%d): %s",
+                           " ".join(args[:3]), attempt + 1, retries, proc.returncode, proc.stderr[:300])
+            if attempt + 1 < retries:
+                time.sleep(5 * (attempt + 1))
+            elif check:
                 raise RuntimeError(proc.stderr)
-            return False
-        return True
-    except Exception as e:
-        logger.warning("rclone exception: %s", e)
-        if check:
-            raise
-        return False
+        except Exception as e:
+            logger.warning("rclone exception (attempt %d/%d): %s", attempt + 1, retries, e)
+            if attempt + 1 < retries:
+                time.sleep(5 * (attempt + 1))
+            elif check:
+                raise
+    return False
 
 
 def flush_and_upload_shard(
