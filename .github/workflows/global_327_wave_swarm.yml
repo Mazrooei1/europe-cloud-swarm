@@ -26,9 +26,9 @@ on:
         required: false
         default: '290'
       shard_size:
-        description: 'Records per uncompressed .sqlite/.csv/.jsonl shard (default 100000)'
+        description: 'Records per uncompressed .sqlite/.csv/.jsonl shard (default 50000)'
         required: false
-        default: '100000'
+        default: '50000'
 
 jobs:
   select_wave_matrix:
@@ -89,14 +89,15 @@ jobs:
           mkdir -p ~/.config/rclone
           printf '%s\n' "$RCLONE_CONFIG_CONTENT" > ~/.config/rclone/rclone.conf
 
-      - name: Run 32-Worker Resumable Checkpointed Extractor
+      - name: Run 35-Worker Ultra-High-Throughput Engine v2.0
         run: |
           MAX_M="${{ github.event.inputs.max_minutes || '290' }}"
-          SHARD_SZ="${{ github.event.inputs.shard_size || '100000' }}"
+          SHARD_SZ="${{ github.event.inputs.shard_size || '50000' }}"
           python3 universal_cloud_worker.py \
             --domain "${{ matrix.domain }}" \
             --country-code "${{ matrix.cc }}" \
-            --workers 32 \
+            --workers 35 \
             --shard-size "$SHARD_SZ" \
+            --batch-size 10000 \
             --max-minutes "$MAX_M" \
             --rclone-dest "gdrive:Global_Cloud_Swarm_Exports/portals/${{ matrix.domain }}"
