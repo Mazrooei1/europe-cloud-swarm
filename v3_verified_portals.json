@@ -1,0 +1,209 @@
+{
+  "description": "Verified High-Accuracy Portals for Engine v3.0 Quality Swarm (Safeguards #1-#5)",
+  "batches": {
+    "v3_batch_1": [
+      {
+        "domain": "zameen.com",
+        "cc": "PK",
+        "capacity": 420000
+      },
+      {
+        "domain": "propertyfinder.ae",
+        "cc": "AE",
+        "capacity": 260000
+      },
+      {
+        "domain": "rightmove.co.uk",
+        "cc": "GB",
+        "capacity": 850000
+      },
+      {
+        "domain": "oneroof.co.nz",
+        "cc": "NZ",
+        "capacity": 351000
+      },
+      {
+        "domain": "fincaraiz.com.co",
+        "cc": "CO",
+        "capacity": 320000
+      },
+      {
+        "domain": "immobilienscout24.at",
+        "cc": "AT",
+        "capacity": 95000
+      },
+      {
+        "domain": "imovirtual.com",
+        "cc": "PT",
+        "capacity": 110000
+      },
+      {
+        "domain": "storia.ro",
+        "cc": "RO",
+        "capacity": 243000
+      },
+      {
+        "domain": "otodom.pl",
+        "cc": "PL",
+        "capacity": 220000
+      },
+      {
+        "domain": "gratka.pl",
+        "cc": "PL",
+        "capacity": 180000
+      },
+      {
+        "domain": "rumah123.com",
+        "cc": "ID",
+        "capacity": 480000
+      },
+      {
+        "domain": "lun.ua",
+        "cc": "UA",
+        "capacity": 243000
+      },
+      {
+        "domain": "dom.ria.com",
+        "cc": "UA",
+        "capacity": 180000
+      },
+      {
+        "domain": "bezrealitky.cz",
+        "cc": "CZ",
+        "capacity": 243000
+      },
+      {
+        "domain": "hendyla.com",
+        "cc": "PY",
+        "capacity": 189000
+      },
+      {
+        "domain": "ikman.lk",
+        "cc": "LK",
+        "capacity": 260000
+      },
+      {
+        "domain": "willhaben.at",
+        "cc": "AT",
+        "capacity": 380000
+      },
+      {
+        "domain": "marktplaats.nl",
+        "cc": "NL",
+        "capacity": 1900000
+      },
+      {
+        "domain": "olx.pl",
+        "cc": "PL",
+        "capacity": 1600000
+      },
+      {
+        "domain": "olx.pt",
+        "cc": "PT",
+        "capacity": 600000
+      }
+    ],
+    "v3_batch_2": [
+      {
+        "domain": "realestate.com.kh",
+        "cc": "KH",
+        "capacity": 260000
+      },
+      {
+        "domain": "citymax-gt.com",
+        "cc": "GT",
+        "capacity": 105000
+      },
+      {
+        "domain": "olx.ua",
+        "cc": "UA",
+        "capacity": 135000
+      },
+      {
+        "domain": "olx.uz",
+        "cc": "UZ",
+        "capacity": 260000
+      },
+      {
+        "domain": "olx.ro",
+        "cc": "RO",
+        "capacity": 135000
+      },
+      {
+        "domain": "4zida.rs",
+        "cc": "RS",
+        "capacity": 243000
+      },
+      {
+        "domain": "2dehands.be",
+        "cc": "BE",
+        "capacity": 135000
+      },
+      {
+        "domain": "kn.kz",
+        "cc": "KZ",
+        "capacity": 351000
+      },
+      {
+        "domain": "olx.bg",
+        "cc": "BG",
+        "capacity": 135000
+      },
+      {
+        "domain": "kleinanzeigen.de",
+        "cc": "DE",
+        "capacity": 2500000
+      },
+      {
+        "domain": "krisha.kz",
+        "cc": "KZ",
+        "capacity": 260000
+      },
+      {
+        "domain": "mudah.my",
+        "cc": "MY",
+        "capacity": 351000
+      },
+      {
+        "domain": "khmer24.com",
+        "cc": "KH",
+        "capacity": 195000
+      },
+      {
+        "domain": "crautos.com",
+        "cc": "CR",
+        "capacity": 105000
+      },
+      {
+        "domain": "homegate.ch",
+        "cc": "CH",
+        "capacity": 110000
+      },
+      {
+        "domain": "zonaprop.com.ar",
+        "cc": "AR",
+        "capacity": 450000
+      },
+      {
+        "domain": "hitad.lk",
+        "cc": "LK",
+        "capacity": 351000
+      },
+      {
+        "domain": "reality.sk",
+        "cc": "SK",
+        "capacity": 243000
+      },
+      {
+        "domain": "magicbricks.com",
+        "cc": "IN",
+        "capacity": 1200000
+      },
+      {
+        "domain": "olx.in",
+        "cc": "IN",
+        "capacity": 2400000
+      }
+    ]
+  }
+}

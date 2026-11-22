@@ -1,0 +1,97 @@
+name: Engine v3.0 High-Accuracy Quality Swarm (>85% Verified -> portals_v3)
+
+on:
+  schedule:
+    # Staggered 6h waves (03:00, 09:00, 15:00, 21:00 UTC) alternating v3_batch_1 & v3_batch_2
+    - cron: '0 3,9,15,21 * * *'
+  workflow_dispatch:
+    inputs:
+      wave:
+        description: 'Verified high-accuracy batch (v3_batch_1, v3_batch_2, or auto)'
+        required: true
+        default: 'v3_batch_1'
+        type: choice
+        options:
+          - v3_batch_1
+          - v3_batch_2
+          - auto
+      max_minutes:
+        description: 'Soft time budget per runner in minutes (default 290 = 4h50m)'
+        required: false
+        default: '290'
+      shard_size:
+        description: 'Records per verified uncompressed .sqlite/.csv/.jsonl shard (default 50000)'
+        required: false
+        default: '50000'
+
+jobs:
+  select_v3_matrix:
+    name: Build 20-Runner Verified v3.0 Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout Cloud Swarm Repository
+        uses: actions/checkout@v4
+
+      - name: Load Verified Batch from v3_verified_portals.json
+        id: set-matrix
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, time
+          from pathlib import Path
+
+          data = json.loads(Path("v3_verified_portals.json").read_text(encoding="utf-8"))
+          batches = data["batches"]
+          wave = "${{ github.event.inputs.wave || 'auto' }}".strip()
+          if not wave or wave == "auto":
+              slot = int(time.time() // (6 * 3600)) % len(batches) + 1
+              wave = f"v3_batch_{slot}"
+          selected = batches.get(wave, batches["v3_batch_1"])
+          print("matrix=" + json.dumps({"include": selected}, separators=(",", ":")))
+          PY
+
+  extract_v3_shards:
+    name: v3.0 Extract ${{ matrix.domain }} (${{ matrix.cc }})
+    needs: select_v3_matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJson(needs.select_v3_matrix.outputs.matrix) }}
+
+    steps:
+      - name: Checkout Cloud Swarm Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies & rclone
+        run: |
+          pip install -r requirements.txt
+          sudo apt-get update -qq && sudo apt-get install -y -qq rclone
+
+      - name: Configure rclone Google Drive Remote
+        env:
+          RCLONE_CONFIG_CONTENT: ${{ secrets.RCLONE_CONFIG }}
+        run: |
+          mkdir -p ~/.config/rclone
+          printf '%s\n' "$RCLONE_CONFIG_CONTENT" > ~/.config/rclone/rclone.conf
+
+      - name: Run Engine v3.0 High-Accuracy Worker (Safeguards #1-#5)
+        run: |
+          MAX_M="${{ github.event.inputs.max_minutes || '290' }}"
+          SHARD_SZ="${{ github.event.inputs.shard_size || '50000' }}"
+          python3 universal_cloud_worker_v3.py \
+            --domain "${{ matrix.domain }}" \
+            --country-code "${{ matrix.cc }}" \
+            --capacity "${{ matrix.capacity }}" \
+            --workers 35 \
+            --shard-size "$SHARD_SZ" \
+            --batch-size 5000 \
+            --max-minutes "$MAX_M" \
+            --rclone-dest "gdrive:Global_Cloud_Swarm_Exports/portals_v3/${{ matrix.domain }}"
