@@ -2,18 +2,24 @@ name: Engine v3.0 High-Accuracy Quality Swarm (>85% Verified -> portals_v3)
 
 on:
   schedule:
-    # Staggered 6h waves (03:00, 09:00, 15:00, 21:00 UTC) alternating v3_batch_1 & v3_batch_2
+    # Staggered 6h waves (03:00, 09:00, 15:00, 21:00 UTC) with strict run-number round-robin across all 8 batches
     - cron: '0 3,9,15,21 * * *'
   workflow_dispatch:
     inputs:
       wave:
-        description: 'Verified high-accuracy batch (v3_batch_1, v3_batch_2, or auto)'
+        description: 'Batch from v3_verified_portals.json (v3_batch_1..v3_batch_8, or auto)'
         required: true
         default: 'v3_batch_1'
         type: choice
         options:
           - v3_batch_1
           - v3_batch_2
+          - v3_batch_3
+          - v3_batch_4
+          - v3_batch_5
+          - v3_batch_6
+          - v3_batch_7
+          - v3_batch_8
           - auto
       max_minutes:
         description: 'Soft time budget per runner in minutes (default 290 = 4h50m)'
@@ -34,18 +40,19 @@ jobs:
       - name: Checkout Cloud Swarm Repository
         uses: actions/checkout@v4
 
-      - name: Load Verified Batch from v3_verified_portals.json
+      - name: Load Verified Batch with Strict Run-Number Rotation
         id: set-matrix
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
-          import json, time
+          import json
           from pathlib import Path
 
           data = json.loads(Path("v3_verified_portals.json").read_text(encoding="utf-8"))
           batches = data["batches"]
           wave = "${{ github.event.inputs.wave || 'auto' }}".strip()
           if not wave or wave == "auto":
-              slot = int(time.time() // (6 * 3600)) % len(batches) + 1
+              run_num = int("${{ github.run_number }}")
+              slot = ((run_num - 1) % len(batches)) + 1
               wave = f"v3_batch_{slot}"
           selected = batches.get(wave, batches["v3_batch_1"])
           print("matrix=" + json.dumps({"include": selected}, separators=(",", ":")))

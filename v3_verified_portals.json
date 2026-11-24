@@ -1,109 +1,19 @@
 {
-  "description": "Verified High-Accuracy Portals for Engine v3.0 Quality Swarm (Safeguards #1-#5)",
+  "description": "Engine v3.0 Expanded Registry: All 143 Remaining Open-Sitemap Portals (Completed/Capped v3 Portals Excluded, Strict Run-Number Rotation)",
+  "total_portals": 143,
+  "batch_count": 8,
   "batches": {
     "v3_batch_1": [
       {
-        "domain": "zameen.com",
-        "cc": "PK",
-        "capacity": 420000
-      },
-      {
-        "domain": "propertyfinder.ae",
-        "cc": "AE",
+        "domain": "krisha.kz",
+        "cc": "KZ",
         "capacity": 260000
       },
       {
-        "domain": "rightmove.co.uk",
-        "cc": "GB",
-        "capacity": 850000
-      },
-      {
-        "domain": "oneroof.co.nz",
-        "cc": "NZ",
+        "domain": "kn.kz",
+        "cc": "KZ",
         "capacity": 351000
       },
-      {
-        "domain": "fincaraiz.com.co",
-        "cc": "CO",
-        "capacity": 320000
-      },
-      {
-        "domain": "immobilienscout24.at",
-        "cc": "AT",
-        "capacity": 95000
-      },
-      {
-        "domain": "imovirtual.com",
-        "cc": "PT",
-        "capacity": 110000
-      },
-      {
-        "domain": "storia.ro",
-        "cc": "RO",
-        "capacity": 243000
-      },
-      {
-        "domain": "otodom.pl",
-        "cc": "PL",
-        "capacity": 220000
-      },
-      {
-        "domain": "gratka.pl",
-        "cc": "PL",
-        "capacity": 180000
-      },
-      {
-        "domain": "rumah123.com",
-        "cc": "ID",
-        "capacity": 480000
-      },
-      {
-        "domain": "lun.ua",
-        "cc": "UA",
-        "capacity": 243000
-      },
-      {
-        "domain": "dom.ria.com",
-        "cc": "UA",
-        "capacity": 180000
-      },
-      {
-        "domain": "bezrealitky.cz",
-        "cc": "CZ",
-        "capacity": 243000
-      },
-      {
-        "domain": "hendyla.com",
-        "cc": "PY",
-        "capacity": 189000
-      },
-      {
-        "domain": "ikman.lk",
-        "cc": "LK",
-        "capacity": 260000
-      },
-      {
-        "domain": "willhaben.at",
-        "cc": "AT",
-        "capacity": 380000
-      },
-      {
-        "domain": "marktplaats.nl",
-        "cc": "NL",
-        "capacity": 1900000
-      },
-      {
-        "domain": "olx.pl",
-        "cc": "PL",
-        "capacity": 1600000
-      },
-      {
-        "domain": "olx.pt",
-        "cc": "PT",
-        "capacity": 600000
-      }
-    ],
-    "v3_batch_2": [
       {
         "domain": "realestate.com.kh",
         "cc": "KH",
@@ -113,6 +23,11 @@
         "domain": "citymax-gt.com",
         "cc": "GT",
         "capacity": 105000
+      },
+      {
+        "domain": "4zida.rs",
+        "cc": "RS",
+        "capacity": 243000
       },
       {
         "domain": "olx.ua",
@@ -130,9 +45,9 @@
         "capacity": 135000
       },
       {
-        "domain": "4zida.rs",
-        "cc": "RS",
-        "capacity": 243000
+        "domain": "olx.bg",
+        "cc": "BG",
+        "capacity": 135000
       },
       {
         "domain": "2dehands.be",
@@ -140,44 +55,14 @@
         "capacity": 135000
       },
       {
-        "domain": "kn.kz",
-        "cc": "KZ",
-        "capacity": 351000
-      },
-      {
-        "domain": "olx.bg",
-        "cc": "BG",
-        "capacity": 135000
-      },
-      {
-        "domain": "kleinanzeigen.de",
-        "cc": "DE",
-        "capacity": 2500000
-      },
-      {
-        "domain": "krisha.kz",
-        "cc": "KZ",
-        "capacity": 260000
-      },
-      {
-        "domain": "mudah.my",
-        "cc": "MY",
-        "capacity": 351000
-      },
-      {
-        "domain": "khmer24.com",
-        "cc": "KH",
-        "capacity": 195000
-      },
-      {
-        "domain": "crautos.com",
-        "cc": "CR",
-        "capacity": 105000
-      },
-      {
         "domain": "homegate.ch",
         "cc": "CH",
         "capacity": 110000
+      },
+      {
+        "domain": "immoscout24.ch",
+        "cc": "CH",
+        "capacity": 135000
       },
       {
         "domain": "zonaprop.com.ar",
@@ -185,14 +70,91 @@
         "capacity": 450000
       },
       {
-        "domain": "hitad.lk",
-        "cc": "LK",
+        "domain": "jofogas.hu",
+        "cc": "HU",
+        "capacity": 135000
+      },
+      {
+        "domain": "lamudi.co.id",
+        "cc": "ID",
         "capacity": 351000
       },
       {
-        "domain": "reality.sk",
-        "cc": "SK",
-        "capacity": 243000
+        "domain": "privateproperty.co.za",
+        "cc": "ZA",
+        "capacity": 41250
+      },
+      {
+        "domain": "rumah123.com",
+        "cc": "ID",
+        "capacity": 480000
+      },
+      {
+        "domain": "immobilienscout24.at",
+        "cc": "AT",
+        "capacity": 95000
+      },
+      {
+        "domain": "bolha.com",
+        "cc": "SI",
+        "capacity": 135000
+      },
+      {
+        "domain": "athome.co.jp",
+        "cc": "JP",
+        "capacity": 1200000
+      }
+    ],
+    "v3_batch_2": [
+      {
+        "domain": "58.com",
+        "cc": "CN",
+        "capacity": 3500000
+      },
+      {
+        "domain": "leboncoin.fr",
+        "cc": "FR",
+        "capacity": 3200000
+      },
+      {
+        "domain": "ke.com",
+        "cc": "CN",
+        "capacity": 2800000
+      },
+      {
+        "domain": "craigslist.org",
+        "cc": "US",
+        "capacity": 2500000
+      },
+      {
+        "domain": "kleinanzeigen.de",
+        "cc": "DE",
+        "capacity": 2500000
+      },
+      {
+        "domain": "olx.in",
+        "cc": "IN",
+        "capacity": 2400000
+      },
+      {
+        "domain": "zillow.com",
+        "cc": "US",
+        "capacity": 2100000
+      },
+      {
+        "domain": "marktplaats.nl",
+        "cc": "NL",
+        "capacity": 1900000
+      },
+      {
+        "domain": "haraj.com.sa",
+        "cc": "SA",
+        "capacity": 1500000
+      },
+      {
+        "domain": "homes.co.jp",
+        "cc": "JP",
+        "capacity": 1400000
       },
       {
         "domain": "magicbricks.com",
@@ -200,9 +162,576 @@
         "capacity": 1200000
       },
       {
-        "domain": "olx.in",
-        "cc": "IN",
-        "capacity": 2400000
+        "domain": "gumtree.com",
+        "cc": "GB",
+        "capacity": 1200000
+      },
+      {
+        "domain": "immobiliare.it",
+        "cc": "IT",
+        "capacity": 950000
+      },
+      {
+        "domain": "bienici.com",
+        "cc": "FR",
+        "capacity": 700000
+      },
+      {
+        "domain": "immowelt.de",
+        "cc": "DE",
+        "capacity": 450000
+      },
+      {
+        "domain": "willhaben.at",
+        "cc": "AT",
+        "capacity": 380000
+      },
+      {
+        "domain": "hitad.lk",
+        "cc": "LK",
+        "capacity": 351000
+      },
+      {
+        "domain": "myrealty.am",
+        "cc": "AM",
+        "capacity": 351000
+      },
+      {
+        "domain": "gumtree.com.au",
+        "cc": "AU",
+        "capacity": 351000
+      },
+      {
+        "domain": "alonhadat.com.vn",
+        "cc": "VN",
+        "capacity": 351000
+      }
+    ],
+    "v3_batch_3": [
+      {
+        "domain": "ips-cambodia.com",
+        "cc": "KH",
+        "capacity": 351000
+      },
+      {
+        "domain": "kaidee.com",
+        "cc": "TH",
+        "capacity": 351000
+      },
+      {
+        "domain": "mudah.my",
+        "cc": "MY",
+        "capacity": 351000
+      },
+      {
+        "domain": "rakuya.com.tw",
+        "cc": "TW",
+        "capacity": 351000
+      },
+      {
+        "domain": "place.ge",
+        "cc": "GE",
+        "capacity": 351000
+      },
+      {
+        "domain": "finn.no",
+        "cc": "NO",
+        "capacity": 350000
+      },
+      {
+        "domain": "yad2.co.il",
+        "cc": "IL",
+        "capacity": 320000
+      },
+      {
+        "domain": "domain.com.au",
+        "cc": "AU",
+        "capacity": 290000
+      },
+      {
+        "domain": "hamrobazaar.com",
+        "cc": "NP",
+        "capacity": 260000
+      },
+      {
+        "domain": "591.com.tw",
+        "cc": "TW",
+        "capacity": 260000
+      },
+      {
+        "domain": "propertyfinder.ae",
+        "cc": "AE",
+        "capacity": 260000
+      },
+      {
+        "domain": "myhome.ge",
+        "cc": "GE",
+        "capacity": 260000
+      },
+      {
+        "domain": "trademe.co.nz",
+        "cc": "NZ",
+        "capacity": 260000
+      },
+      {
+        "domain": "oikotie.fi",
+        "cc": "FI",
+        "capacity": 243000
+      },
+      {
+        "domain": "okidoki.ee",
+        "cc": "EE",
+        "capacity": 243000
+      },
+      {
+        "domain": "wortimmo.lu",
+        "cc": "LU",
+        "capacity": 243000
+      },
+      {
+        "domain": "reality.sk",
+        "cc": "SK",
+        "capacity": 243000
+      },
+      {
+        "domain": "zenga.hu",
+        "cc": "HU",
+        "capacity": 243000
+      },
+      {
+        "domain": "storia.ro",
+        "cc": "RO",
+        "capacity": 243000
+      },
+      {
+        "domain": "bayut.com",
+        "cc": "AE",
+        "capacity": 220000
+      }
+    ],
+    "v3_batch_4": [
+      {
+        "domain": "lamudi.com.ph",
+        "cc": "PH",
+        "capacity": 210000
+      },
+      {
+        "domain": "estate.am",
+        "cc": "AM",
+        "capacity": 195000
+      },
+      {
+        "domain": "olx.com.pk",
+        "cc": "PK",
+        "capacity": 195000
+      },
+      {
+        "domain": "khmer24.com",
+        "cc": "KH",
+        "capacity": 195000
+      },
+      {
+        "domain": "gharbazar.com",
+        "cc": "NP",
+        "capacity": 195000
+      },
+      {
+        "domain": "realestate.co.nz",
+        "cc": "NZ",
+        "capacity": 195000
+      },
+      {
+        "domain": "99.co",
+        "cc": "SG",
+        "capacity": 195000
+      },
+      {
+        "domain": "chotot.com",
+        "cc": "VN",
+        "capacity": 195000
+      },
+      {
+        "domain": "uybor.uz",
+        "cc": "UZ",
+        "capacity": 195000
+      },
+      {
+        "domain": "olx.kz",
+        "cc": "KZ",
+        "capacity": 195000
+      },
+      {
+        "domain": "conlallave.com",
+        "cc": "VE",
+        "capacity": 189000
+      },
+      {
+        "domain": "buscocasa.com",
+        "cc": "PA",
+        "capacity": 189000
+      },
+      {
+        "domain": "yapo.cl",
+        "cc": "CL",
+        "capacity": 189000
+      },
+      {
+        "domain": "imobiliare.ro",
+        "cc": "RO",
+        "capacity": 180000
+      },
+      {
+        "domain": "boligsiden.dk",
+        "cc": "DK",
+        "capacity": 180000
+      },
+      {
+        "domain": "etuovi.com",
+        "cc": "FI",
+        "capacity": 180000
+      },
+      {
+        "domain": "ss.lv",
+        "cc": "LV",
+        "capacity": 180000
+      },
+      {
+        "domain": "imot.bg",
+        "cc": "BG",
+        "capacity": 180000
+      },
+      {
+        "domain": "athome.lu",
+        "cc": "LU",
+        "capacity": 180000
+      },
+      {
+        "domain": "nehnutelnosti.sk",
+        "cc": "SK",
+        "capacity": 180000
+      }
+    ],
+    "v3_batch_5": [
+      {
+        "domain": "sreality.cz",
+        "cc": "CZ",
+        "capacity": 180000
+      },
+      {
+        "domain": "njuskalo.hr",
+        "cc": "HR",
+        "capacity": 180000
+      },
+      {
+        "domain": "immoweb.be",
+        "cc": "BE",
+        "capacity": 160000
+      },
+      {
+        "domain": "infocasas.com.uy",
+        "cc": "UY",
+        "capacity": 140000
+      },
+      {
+        "domain": "infocasas.com.bo",
+        "cc": "BO",
+        "capacity": 140000
+      },
+      {
+        "domain": "infocasas.com.py",
+        "cc": "PY",
+        "capacity": 140000
+      },
+      {
+        "domain": "supercasas.com",
+        "cc": "DO",
+        "capacity": 140000
+      },
+      {
+        "domain": "funda.nl",
+        "cc": "NL",
+        "capacity": 140000
+      },
+      {
+        "domain": "plusvalia.com",
+        "cc": "EC",
+        "capacity": 140000
+      },
+      {
+        "domain": "urbania.pe",
+        "cc": "PE",
+        "capacity": 140000
+      },
+      {
+        "domain": "mbl.is",
+        "cc": "IS",
+        "capacity": 135000
+      },
+      {
+        "domain": "xe.gr",
+        "cc": "GR",
+        "capacity": 135000
+      },
+      {
+        "domain": "index.hr",
+        "cc": "HR",
+        "capacity": 135000
+      },
+      {
+        "domain": "blocket.se",
+        "cc": "SE",
+        "capacity": 135000
+      },
+      {
+        "domain": "tori.fi",
+        "cc": "FI",
+        "capacity": 135000
+      },
+      {
+        "domain": "dba.dk",
+        "cc": "DK",
+        "capacity": 135000
+      },
+      {
+        "domain": "propertymarket.com.mt",
+        "cc": "MT",
+        "capacity": 135000
+      },
+      {
+        "domain": "sarouty.ma",
+        "cc": "MA",
+        "capacity": 128250
+      },
+      {
+        "domain": "mzadqatar.com",
+        "cc": "QA",
+        "capacity": 128250
+      },
+      {
+        "domain": "dubizzle.com.eg",
+        "cc": "EG",
+        "capacity": 128250
+      }
+    ],
+    "v3_batch_6": [
+      {
+        "domain": "kilid.com",
+        "cc": "IR",
+        "capacity": 128250
+      },
+      {
+        "domain": "homeless.co.il",
+        "cc": "IL",
+        "capacity": 128250
+      },
+      {
+        "domain": "imovirtual.com",
+        "cc": "PT",
+        "capacity": 110000
+      },
+      {
+        "domain": "crautos.com",
+        "cc": "CR",
+        "capacity": 105000
+      },
+      {
+        "domain": "clasipar.paraguay.com",
+        "cc": "PY",
+        "capacity": 105000
+      },
+      {
+        "domain": "corotos.com.do",
+        "cc": "DO",
+        "capacity": 105000
+      },
+      {
+        "domain": "gallito.com.uy",
+        "cc": "UY",
+        "capacity": 105000
+      },
+      {
+        "domain": "toctoc.com",
+        "cc": "CL",
+        "capacity": 105000
+      },
+      {
+        "domain": "bayut.sa",
+        "cc": "SA",
+        "capacity": 95000
+      },
+      {
+        "domain": "mubawab.tn",
+        "cc": "TN",
+        "capacity": 95000
+      },
+      {
+        "domain": "mubawab.ma",
+        "cc": "MA",
+        "capacity": 95000
+      },
+      {
+        "domain": "propertybook.co.zw",
+        "cc": "ZW",
+        "capacity": 74250
+      },
+      {
+        "domain": "namcars.net",
+        "cc": "NA",
+        "capacity": 74250
+      },
+      {
+        "domain": "maisvendas.co.mz",
+        "cc": "MZ",
+        "capacity": 74250
+      },
+      {
+        "domain": "zoomtanzania.net",
+        "cc": "TZ",
+        "capacity": 74250
+      },
+      {
+        "domain": "jumia.sn",
+        "cc": "SN",
+        "capacity": 74250
+      },
+      {
+        "domain": "kerawa.com",
+        "cc": "CM",
+        "capacity": 74250
+      },
+      {
+        "domain": "qatarliving.com",
+        "cc": "QA",
+        "capacity": 71250
+      },
+      {
+        "domain": "iq.opensooq.com",
+        "cc": "IQ",
+        "capacity": 71250
+      },
+      {
+        "domain": "bayut.jo",
+        "cc": "JO",
+        "capacity": 71250
+      }
+    ],
+    "v3_batch_7": [
+      {
+        "domain": "tayara.tn",
+        "cc": "TN",
+        "capacity": 71250
+      },
+      {
+        "domain": "avito.ma",
+        "cc": "MA",
+        "capacity": 71250
+      },
+      {
+        "domain": "sheypoor.com",
+        "cc": "IR",
+        "capacity": 71250
+      },
+      {
+        "domain": "beytic.com",
+        "cc": "DZ",
+        "capacity": 71250
+      },
+      {
+        "domain": "madlan.co.il",
+        "cc": "IL",
+        "capacity": 71250
+      },
+      {
+        "domain": "propertyfinder.bh",
+        "cc": "BH",
+        "capacity": 65000
+      },
+      {
+        "domain": "propertyfinder.eg",
+        "cc": "EG",
+        "capacity": 60000
+      },
+      {
+        "domain": "immonet.at",
+        "cc": "AT",
+        "capacity": 60000
+      },
+      {
+        "domain": "angocasa.com",
+        "cc": "AO",
+        "capacity": 55000
+      },
+      {
+        "domain": "houseinrwanda.com",
+        "cc": "RW",
+        "capacity": 55000
+      },
+      {
+        "domain": "lexpressproperty.com",
+        "cc": "MU",
+        "capacity": 55000
+      },
+      {
+        "domain": "propertyfinder.qa",
+        "cc": "QA",
+        "capacity": 55000
+      },
+      {
+        "domain": "meqasa.com",
+        "cc": "GH",
+        "capacity": 55000
+      },
+      {
+        "domain": "coinafrique.com",
+        "cc": "CM",
+        "capacity": 55000
+      },
+      {
+        "domain": "propertycloud.mu",
+        "cc": "MU",
+        "capacity": 41250
+      },
+      {
+        "domain": "lamudi.co.ug",
+        "cc": "UG",
+        "capacity": 41250
+      },
+      {
+        "domain": "classifieds.co.zw",
+        "cc": "ZW",
+        "capacity": 41250
+      },
+      {
+        "domain": "kupatana.com",
+        "cc": "TZ",
+        "capacity": 41250
+      },
+      {
+        "domain": "jumia.ci",
+        "cc": "CI",
+        "capacity": 41250
+      },
+      {
+        "domain": "hybel.no",
+        "cc": "NO",
+        "capacity": 25000
+      }
+    ],
+    "v3_batch_8": [
+      {
+        "domain": "daft.ie",
+        "cc": "IE",
+        "capacity": 25000
+      },
+      {
+        "domain": "myhome.ie",
+        "cc": "IE",
+        "capacity": 18000
+      },
+      {
+        "domain": "krogsveen.no",
+        "cc": "NO",
+        "capacity": 15000
       }
     ]
   }
