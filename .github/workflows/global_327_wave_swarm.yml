@@ -1,9 +1,9 @@
-name: Global 327-Portal Resumable Wave Swarm (156 Open-Sitemap Portals -> Google Drive)
+name: Global 327-Portal Resumable Wave Swarm [PAUSED - Manual Only]
 
 on:
-  schedule:
-    # Continuous staggered 6-hour waves rotating across all 8 batches (156 confirmed reachable portals)
-    - cron: '30 0,6,12,18 * * *'
+  # PAUSED: Dedicated runner slots to verified Engine v3.0 + Engine v4.0 Turbo (>85% accuracy)
+  # schedule:
+  #   - cron: '30 0,6,12,18 * * *'
   workflow_dispatch:
     inputs:
       wave:
