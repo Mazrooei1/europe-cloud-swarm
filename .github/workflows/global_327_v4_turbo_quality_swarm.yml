@@ -1,26 +1,11 @@
-name: Engine v4.0 Turbo Quality Swarm (143 Portals, 48w Sliding-Window -> portals_v4)
+name: Engine v4.5 Dynamic Sharded Quality Swarm (20 Active Runners 24/7 -> portals_v4)
 
 on:
   schedule:
-    # Staggered 6h waves (01:30, 07:30, 13:30, 19:30 UTC) with strict run-number round-robin rotation
-    - cron: '30 1,7,13,19 * * *'
+    # Runs every 5 hours (aligned to 4h50m soft budget) so all 20 runners stay busy ~24/7
+    - cron: '0 */5 * * *'
   workflow_dispatch:
     inputs:
-      wave:
-        description: 'Batch from v4_global_portals.json (v4_batch_1..v4_batch_8, or auto)'
-        required: true
-        default: 'v4_batch_1'
-        type: choice
-        options:
-          - v4_batch_1
-          - v4_batch_2
-          - v4_batch_3
-          - v4_batch_4
-          - v4_batch_5
-          - v4_batch_6
-          - v4_batch_7
-          - v4_batch_8
-          - auto
       max_minutes:
         description: 'Soft time budget per runner in minutes (default 290 = 4h50m)'
         required: false
@@ -29,10 +14,18 @@ on:
         description: 'Records per verified uncompressed .sqlite/.csv/.jsonl shard (default 50000)'
         required: false
         default: '50000'
+      max_urls:
+        description: 'Optional URL cap per runner for quick smoke tests (0 = unlimited)'
+        required: false
+        default: '0'
+      workers:
+        description: 'Concurrent HTTP/2 workers per runner (default 64)'
+        required: false
+        default: '64'
 
 jobs:
-  select_v4_matrix:
-    name: Build 20-Runner Engine v4.0 Turbo Matrix
+  select_v45_matrix:
+    name: Build Dynamic 20-Runner Sharded Matrix (Zero Idle Slots)
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -40,33 +33,42 @@ jobs:
       - name: Checkout Cloud Swarm Repository
         uses: actions/checkout@v4
 
-      - name: Load Batch with Strict Run-Number Round-Robin Rotation
+      - name: Install rclone
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq rclone
+
+      - name: Configure rclone Google Drive Remote
+        env:
+          RCLONE_CONFIG_CONTENT: ${{ secrets.RCLONE_CONFIG }}
+        run: |
+          mkdir -p ~/.config/rclone
+          printf '%s\n' "$RCLONE_CONFIG_CONTENT" > ~/.config/rclone/rclone.conf
+
+      - name: Sync Live Checkpoint States & Build 20-Runner Sharded Queue
         id: set-matrix
         run: |
-          python3 - <<'PY' >> "$GITHUB_OUTPUT"
-          import json
-          from pathlib import Path
+          mkdir -p /tmp/v45_state
+          rclone copy \
+            --include "checkpoint*.json" \
+            --include "portal_totals*.json" \
+            --transfers 32 --checkers 32 \
+            "gdrive:Global_Cloud_Swarm_Exports/portals_v4" /tmp/v45_state || true
+          MATRIX_JSON=$(python3 v45_dynamic_dispatcher.py build \
+            --manifest v4_global_portals.json \
+            --state-dir /tmp/v45_state \
+            --max-runners 20)
+          echo "matrix=$MATRIX_JSON" >> "$GITHUB_OUTPUT"
+          echo "Generated matrix: $MATRIX_JSON"
 
-          data = json.loads(Path("v4_global_portals.json").read_text(encoding="utf-8"))
-          batches = data["batches"]
-          wave = "${{ github.event.inputs.wave || 'auto' }}".strip()
-          if not wave or wave == "auto":
-              run_num = int("${{ github.run_number }}")
-              slot = ((run_num - 1) % len(batches)) + 1
-              wave = f"v4_batch_{slot}"
-          selected = batches.get(wave, batches["v4_batch_1"])
-          print("matrix=" + json.dumps({"include": selected}, separators=(",", ":")))
-          PY
-
-  extract_v4_shards:
-    name: v4.0 Turbo ${{ matrix.domain }} (${{ matrix.cc }})
-    needs: select_v4_matrix
+  extract_v45_shards:
+    name: v4.5 ${{ matrix.label }} (${{ matrix.cc }})
+    needs: select_v45_matrix
+    if: ${{ needs.select_v45_matrix.outputs.matrix != '{"include":[]}' }}
     runs-on: ubuntu-latest
     timeout-minutes: 330
     strategy:
       fail-fast: false
       max-parallel: 20
-      matrix: ${{ fromJson(needs.select_v4_matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.select_v45_matrix.outputs.matrix) }}
 
     steps:
       - name: Checkout Cloud Swarm Repository
@@ -89,16 +91,53 @@ jobs:
           mkdir -p ~/.config/rclone
           printf '%s\n' "$RCLONE_CONFIG_CONTENT" > ~/.config/rclone/rclone.conf
 
-      - name: Run Engine v4.0 Turbo High-Accuracy Worker (48w Sliding-Window)
+      - name: Run Engine v4.5 Dynamic Sharded Worker (64w + Async Uploader)
         run: |
           MAX_M="${{ github.event.inputs.max_minutes || '290' }}"
           SHARD_SZ="${{ github.event.inputs.shard_size || '50000' }}"
+          MAX_U="${{ github.event.inputs.max_urls || '0' }}"
+          WRK="${{ github.event.inputs.workers || '64' }}"
           python3 universal_cloud_worker_v4.py \
             --domain "${{ matrix.domain }}" \
             --country-code "${{ matrix.cc }}" \
             --capacity "${{ matrix.capacity }}" \
-            --workers 48 \
+            --partition-id "${{ matrix.partition_id }}" \
+            --num-partitions "${{ matrix.num_partitions }}" \
+            --workers "$WRK" \
             --shard-size "$SHARD_SZ" \
             --batch-size 10000 \
             --max-minutes "$MAX_M" \
+            --max-urls "$MAX_U" \
             --rclone-dest "gdrive:Global_Cloud_Swarm_Exports/portals_v4/${{ matrix.domain }}"
+
+  merge_v45_checkpoints:
+    name: Merge Sharded Partition Checkpoints -> Dashboard Totals
+    needs: extract_v45_shards
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Cloud Swarm Repository
+        uses: actions/checkout@v4
+
+      - name: Install rclone
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq rclone
+
+      - name: Configure rclone Google Drive Remote
+        env:
+          RCLONE_CONFIG_CONTENT: ${{ secrets.RCLONE_CONFIG }}
+        run: |
+          mkdir -p ~/.config/rclone
+          printf '%s\n' "$RCLONE_CONFIG_CONTENT" > ~/.config/rclone/rclone.conf
+
+      - name: Pull Partition Checkpoints & Merge Canonical Totals
+        run: |
+          mkdir -p /tmp/v45_merge
+          rclone copy \
+            --include "checkpoint*.json" \
+            --include "portal_totals*.json" \
+            --transfers 32 --checkers 32 \
+            "gdrive:Global_Cloud_Swarm_Exports/portals_v4" /tmp/v45_merge || true
+          python3 v45_dynamic_dispatcher.py merge \
+            --state-dir /tmp/v45_merge \
+            --rclone-root "gdrive:Global_Cloud_Swarm_Exports/portals_v4"

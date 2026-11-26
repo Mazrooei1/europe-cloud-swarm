@@ -1,9 +1,9 @@
 name: Engine v3.0 High-Accuracy Quality Swarm (>85% Verified -> portals_v3)
 
 on:
-  schedule:
-    # Staggered 6h waves (03:00, 09:00, 15:00, 21:00 UTC) with strict run-number round-robin across all 8 batches
-    - cron: '0 3,9,15,21 * * *'
+  # PAUSED: Consolidated onto Engine v4.5 Dynamic Sharded Queue (all 20 runners dedicated to v4.5)
+  # schedule:
+  #   - cron: '0 3,9,15,21 * * *'
   workflow_dispatch:
     inputs:
       wave:

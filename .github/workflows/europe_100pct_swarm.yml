@@ -1,9 +1,9 @@
 name: Europe 100% Continental Extraction Swarm (20 Runners -> Google Drive)
 
 on:
-  schedule:
-    # Runs automatically every 6 hours until Gap <= 1,000 (100% Completion)
-    - cron: '0 */6 * * *'
+  # PAUSED: Consolidated onto Engine v4.5 Dynamic Sharded Queue
+  # schedule:
+  #   - cron: '0 */6 * * *'
   workflow_dispatch:
     inputs:
       max_tasks:
