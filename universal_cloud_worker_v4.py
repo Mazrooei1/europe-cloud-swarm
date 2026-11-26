@@ -214,12 +214,18 @@ def main() -> None:
     start_ts = time.time()
     deadline_ts = start_ts + (args.max_minutes * 60)
 
-    # 1. Sync base checkpoint.json + all partition checkpoints from Drive (zero duplicate sitemaps!)
+    # 1. Sync base checkpoint.json + all partition checkpoints + 24h sitemaps_cache.json from Drive
     ckpt_sync_dir = work_dir / "_ckpts"
     ckpt_sync_dir.mkdir(parents=True, exist_ok=True)
     if args.rclone_dest:
         rclone_cmd(
-            ["copy", "--include", "checkpoint*.json", args.rclone_dest, str(ckpt_sync_dir)],
+            [
+                "copy",
+                "--include", "checkpoint*.json",
+                "--include", "sitemaps_cache.json",
+                args.rclone_dest,
+                str(ckpt_sync_dir),
+            ],
             check=False,
             retries=2,
         )
@@ -269,7 +275,41 @@ def main() -> None:
 
     # Partition-local completed sitemaps + global completed sitemaps
     completed_sm: Set[str] = set(checkpoint.get("completed_sitemaps", []))
-    child_sitemaps = discover_child_sitemaps(domain, max_sitemaps=50000, workers=min(args.workers, 32))
+
+    # 24-hour Sitemaps Cache (skips 6-10 min discovery on mega-portals like craigslist.org!)
+    child_sitemaps: List[str] = []
+    sm_cache_file = ckpt_sync_dir / "sitemaps_cache.json"
+    cache_ttl_s = 86400
+    if sm_cache_file.exists():
+        try:
+            sc = json.loads(sm_cache_file.read_text(encoding="utf-8"))
+            age_s = time.time() - float(sc.get("cached_at_ts", 0))
+            cached_list = sc.get("sitemaps", [])
+            if isinstance(cached_list, list) and len(cached_list) > 0 and age_s < cache_ttl_s:
+                child_sitemaps = cached_list
+                logger.info(
+                    "[%s][p%d/%d] sitemaps_cache.json HIT (%d sitemaps, age=%.1fh) -> skipped discovery!",
+                    domain, part_id, num_parts, len(child_sitemaps), age_s / 3600.0,
+                )
+        except Exception:
+            pass
+
+    if not child_sitemaps:
+        child_sitemaps = discover_child_sitemaps(domain, max_sitemaps=50000, workers=min(args.workers, 32))
+        if child_sitemaps and (not is_sharded or part_id == 0):
+            cache_payload = {
+                "portal_domain": domain,
+                "cached_at_ts": time.time(),
+                "cached_at_utc": datetime.now(timezone.utc).isoformat(),
+                "count": len(child_sitemaps),
+                "sitemaps": child_sitemaps,
+            }
+            out_cache = work_dir / "sitemaps_cache.json"
+            out_cache.write_text(json.dumps(cache_payload, separators=(",", ":")), encoding="utf-8")
+            if args.rclone_dest:
+                rclone_cmd(["copyto", "--checksum", str(out_cache), f"{args.rclone_dest}/sitemaps_cache.json"], check=False, retries=2)
+                logger.info("[%s][p%d/%d] Uploaded 24h sitemaps_cache.json (%d sitemaps)", domain, part_id, num_parts, len(child_sitemaps))
+
     checkpoint["total_sitemaps"] = len(child_sitemaps)
 
     all_pending = [s for s in child_sitemaps if s not in global_completed_sm and s not in completed_sm]
